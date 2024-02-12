@@ -40,7 +40,7 @@ public class PlayState extends State {
         gameMap = new TiledGameMap();
 
         //initialize Perry
-        perry = new Perry(600, 200, gameMap);
+        perry = new Perry(600, 300, gameMap);
 
         cam = new OrthographicCamera();
         cam.setToOrtho(false, 970,546 );
