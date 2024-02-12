@@ -1,6 +1,9 @@
 package com.jwb.perfectWorld;
 
+import static com.jwb.perfectWorld.TileType.TILE_SIZE;
+
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
@@ -12,11 +15,11 @@ public class TiledGameMap extends GameMap {
     OrthogonalTiledMapRenderer tiledMapRenderer;
 
     public TiledGameMap() {
-
         tiledMap = new TmxMapLoader().load("DemoShopV1.tmx");
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
-
+        TileType.loadTileTypes(tiledMap); // Make sure to load tile types after loading the map
     }
+
 
     @Override
     public void render(OrthographicCamera camera) {
@@ -47,10 +50,40 @@ public class TiledGameMap extends GameMap {
      */
     @Override
     public TileType getTileTypeByCoordinate(int layer, int col, int row) {
+        TiledMapTileLayer tiledLayer = (TiledMapTileLayer) tiledMap.getLayers().get(layer);
+        TiledMapTileLayer.Cell cell = tiledLayer.getCell(col, row);
 
+        if (cell != null && cell.getTile() != null) {
+            int id = cell.getTile().getId();
+            return TileType.getTileTypeById(id);
+        }
 
         return null;
     }
+
+
+    public boolean isTileCollidable(float x, float y) {
+        int tileX = (int) (x / TILE_SIZE);
+        int tileY = (int) (y / TILE_SIZE);
+
+        // FOR DEBUG
+        //System.out.println("tileX: " + tileX + "tileY: " + tileY);
+
+
+        // Assuming layer 0 for simplicity; adjust as needed for your game
+        TileType tileType = getTileTypeByCoordinate(0, tileX, tileY);
+
+        // FOR DEBUG
+        //System.out.println("Tile ID: " + tileType.toString());
+
+        return tileType != null && tileType.isCollidable(tileType);
+    }
+
+
+
+
+
+
 
     @Override
     public int getWidth() {

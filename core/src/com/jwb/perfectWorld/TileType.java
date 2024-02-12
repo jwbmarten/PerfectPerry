@@ -1,86 +1,66 @@
 package com.jwb.perfectWorld;
 
+import com.badlogic.gdx.maps.MapProperties;
+import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
+
 import java.util.HashMap;
 
 public class TileType {
 
-//    //starts at 1, not 0 indexed
-//    GRASS(1, true, "Grass"),
-//    DIRT(2, true, "Dirt"),
-//    SKY(3, false, "Sky"),
-//    LAVA(4, true, "Lava"),
-//    CLOUD(5, true, "Cloud"),
-//    STONE(6, true, "Stone");
-
-
     public static final int TILE_SIZE = 32;
-
 
     private int id;
     private boolean collidable;
     private String name;
     private float damage;
 
-    private TileType(int id, boolean collidable) {
-
-        this(id, collidable, 0);
-
-    }
-
-    private TileType (int id, boolean collidable, float damage){
-
+    public TileType(int id, boolean collidable, String name, float damage) {
         this.id = id;
         this.collidable = collidable;
+        this.name = name;
         this.damage = damage;
     }
 
-    public int getId() {
-        return id;
-    }
+    // Getters...
 
-    public boolean isCollidable() {
-        return collidable;
-    }
+    private static HashMap<Integer, TileType> tileMap = new HashMap<Integer, TileType>();
 
-    public String getName() {
-        return name;
-    }
+    // This method should be called after loading the map
+    public static void loadTileTypes(TiledMap tiledMap) {
+        tileMap.clear(); // Clear existing tile types
+        for (TiledMapTileSet tileset : tiledMap.getTileSets()) {
+            for (TiledMapTile tile : tileset) {
+                MapProperties props = tile.getProperties();
+                int id = tile.getId();
+                boolean collidable = props.containsKey("collidable") && props.get("collidable", Boolean.class);
+                //String name = props.get("name", String.class, "Unknown");
+                String name = "Unknown";
+                //float damage = props.get("damage", Float.class, 0f);
+                float damage = 0;
 
-    public float getDamage() {
-        return damage;
-    }
-
-    private static HashMap<Integer, TileType> tileMap;
-
-    static {
-
-        int i = 1;
-        /////////////////////////////////////////////////////////////
-        /// T E M P O R A R Y    F O R    D E M O   M O D E
-        /////////////////////////////////////////////////////////////
-
-        while (i > 173){
-
-            //initialize all the tile types to be loaded to the tileMap
-            if (i == 3){
-                tileMap.put(i, new TileType(i, true, 0));
+                tileMap.put(id, new TileType(id, collidable, name, damage));
             }
-
-            else {
-                tileMap.put(i, new TileType(i, false, 0));
-            }
-
-
-            i ++;
-
-
         }
-//        for (TileType tileType : TileType.values()) {
-//            tileMap.put(tileType.getId(), tileType);
-//        }
     }
 
-    public static TileType getTileTypeById (int id) {
+    @Override
+    public String toString(){
+
+        String tileinfo = "tile id: " + this.id + " tile collidable: " + this.collidable;
+        return tileinfo;
+    }
+
+    public static TileType getTileTypeById(int id) {
         return tileMap.get(id);
     }
+
+
+public static boolean isCollidable(TileType tyleType){
+    return tyleType.collidable;
+}
+
+
+
 }

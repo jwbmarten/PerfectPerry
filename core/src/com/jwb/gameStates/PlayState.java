@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.jwb.perfect.PerryInputProcessor;
 import com.jwb.perfectActors.Perry;
 import com.jwb.perfectWorld.GameMap;
@@ -24,7 +25,7 @@ public class PlayState extends State {
 
     private Vector2 groundPos1, groundPos2;
 
-    GameMap gameMap;
+    TiledGameMap gameMap;
 
 
 
@@ -36,13 +37,14 @@ public class PlayState extends State {
 
         demolvl = new Texture("DemoShopV0.png");
 
+        gameMap = new TiledGameMap();
+
         //initialize Perry
-        perry = new Perry(600, 112);
+        perry = new Perry(600, 200, gameMap);
 
         cam = new OrthographicCamera();
         cam.setToOrtho(false, 970,546 );
 
-        gameMap = new TiledGameMap();
 
         inputProcessor = new PerryInputProcessor(perry);
         Gdx.input.setInputProcessor(inputProcessor);
@@ -53,11 +55,15 @@ public class PlayState extends State {
 
     @Override
     protected void handleInput() {
+        if (Gdx.input.isTouched()) {
+            // Convert screen coordinates to world coordinates
+            Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+            cam.unproject(touchPos); // Adjusts touchPos to world coordinates
 
-//		if (Gdx.input.isTouched()){
-//			cam.translate(-Gdx.input.getDeltaX(), Gdx.input.getDeltaY());
-//			cam.update();
-//		}
+            // Now, you can use touchPos.x and touchPos.y to check the tile
+            boolean collidable = gameMap.isTileCollidable(touchPos.x, touchPos.y);
+            System.out.println("Tile collidable: " + collidable);
+        }
     }
 
     @Override

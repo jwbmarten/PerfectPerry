@@ -1,9 +1,13 @@
 package com.jwb.perfectActors;
 
+import static com.jwb.perfectWorld.TileType.TILE_SIZE;
+
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
+import com.jwb.perfectWorld.TileType;
+import com.jwb.perfectWorld.TiledGameMap;
 
 public class Perry {
 
@@ -16,9 +20,9 @@ public class Perry {
 
     private float idleTimer = 0f;
 
-    private static final float RUNNING_RIGHT_DELAY = 0.8f; //500 ms
+    private static final float RUNNING_RIGHT_DELAY = 0.3f; //500 ms
 
-    private static final float RUN_RIGHT_LOOP_DELAY = 2.8f; // accounts for length of idle to running animation
+    private static final float RUN_RIGHT_LOOP_DELAY = 0.8f; // accounts for length of idle to running animation
 
     //static int to represent gravity
     private static final int GRAVITY = -15;
@@ -52,22 +56,25 @@ public class Perry {
     //track if Perry is colliding with anything
     public boolean colliding;
 
+    public TiledGameMap currentLevel;
+
     public enum State {
         IDLE,
         RUNNING_LEFT,
         START_RUN_RIGHT,
         RUNNING_RIGHT
     }
-    public Perry(int x, int y){
+    public Perry(int x, int y, TiledGameMap currentLevel){
 
         position = new Vector3(x, y, 0);
         velocity = new Vector3(0, 0, 0);
+        this.currentLevel = currentLevel;
         texture = new Texture("PerryInactive80ms.png");
         perryAnimation = new Animation(new TextureRegion(texture), 35, 2.8f, true);
         activeAnimation = perryAnimation;
 
         textureRunRight = new Texture("PerryIdletoRun.png");
-        perryAnimationRightRun = new Animation(new TextureRegion(textureRunRight), 11, 2.8f, false);
+        perryAnimationRightRun = new Animation(new TextureRegion(textureRunRight), 11, 0.8f, false);
 
         textureRunningRight = new Texture("RunningLoopCLEANEDUP.png");
         perryAnimationRightCycle = new Animation(new TextureRegion(textureRunningRight), 6, 1.4f, true);
@@ -129,7 +136,7 @@ public class Perry {
             // If not moving left or right, slow down to 0
 
             if (!leftMove && !rightMove) {
-                velocity.x *= 0.5f; // Apply a simple friction factor
+                velocity.x *= 0.2f; // Apply a simple friction factor
                 if (Math.abs(velocity.x) < 0.1f) {
                     velocity.x = 0;
                     handleIdle(dt);
@@ -148,7 +155,7 @@ public class Perry {
     {
         if (t) {
             if (currentState != State.RUNNING_LEFT) {
-                System.out.println("Setting state to running left and resetting active animation.");
+//                System.out.println("Setting state to running left and resetting active animation.");
                 currentState = State.RUNNING_LEFT;
                 activeAnimation.reset();
                 motionTimer = 0;
@@ -158,7 +165,7 @@ public class Perry {
 
         else if (currentState == State.RUNNING_LEFT){
             currentState = State.IDLE;
-            System.out.println("SETTING TO IDLE A");
+//            System.out.println("SETTING TO IDLE A");
             activeAnimation.reset();
             motionTimer = 0;
 
@@ -184,7 +191,7 @@ public class Perry {
         }
 
         else if (currentState == State.START_RUN_RIGHT){
-                System.out.println("SETTING TO IDLE B");
+//                System.out.println("SETTING TO IDLE B");
             currentState = State.IDLE;
             activeAnimation.reset();
             motionTimer = 0;
@@ -204,13 +211,27 @@ public class Perry {
 
     }
 
-    public void handleMoveRight(float dt){
-
+    public void handleMoveRight(float dt) {
         motionTimer += dt;
 
+        float newVelocityX = Math.min((velocity.x * 1.05f) + 1.5f * dt, 8); // Desired velocity increment
 
-        velocity.x = Math.min((velocity.x * 1.05f) + 1.5f * dt, 8); // Gradual speed build up to 4
+        //check that future position plus with width of Perry is not a collidable tile
+        float potentialX = position.x + bounds.width + newVelocityX;
 
+        // Check for collision at Perry's front side
+        if (!currentLevel.isTileCollidable(potentialX + bounds.width, position.y)) {
+            velocity.x = newVelocityX;
+        } else {
+            // Adjust Perry's position to avoid penetrating the collidable tile
+            velocity.x = 0;
+
+
+            //float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
+            //position.x = tileBoundary - bounds.width - 1; // -1 for a small buffer
+
+
+        }
     }
 
     public void handleIdle(float dt){
