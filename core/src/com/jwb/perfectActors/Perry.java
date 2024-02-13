@@ -89,7 +89,7 @@ public class Perry {
         perryAnimationRightCycle = new Animation(new TextureRegion(textureRunningRight), 6, 1f, true);
 
         textureRollRight = new Texture("RollRightWorking.png");
-        perryRollRight = new Animation( new TextureRegion(textureRollRight), 6, 1f, false);
+        perryRollRight = new Animation( new TextureRegion(textureRollRight), 6, .6f, false);
 
         bounds = new Rectangle(x, y, texture.getWidth()/35, texture.getHeight());
         colliding = false;
@@ -98,16 +98,15 @@ public class Perry {
 
         rightRoll = false;
 
-
     }
 
     public void update(float dt, boolean leftPressed, boolean rightPressed){
 
-        if (leftPressed){
-        System.out.println("left pressed: " + leftPressed);}
-
-        if (rightPressed){
-        System.out.println("right pressed: " + rightPressed);}
+//        if (leftPressed){
+//        System.out.println("left pressed: " + leftPressed);}
+//
+//        if (rightPressed){
+//        System.out.println("right pressed: " + rightPressed);}
 
 
         activeAnimation.update(dt);
@@ -117,14 +116,12 @@ public class Perry {
 
             case IDLE:
 
-
                 activeAnimation = perryAnimation; //idle animation
                 bounds = new Rectangle(position.x, position.y, (float) texture.getWidth() /35, texture.getHeight());
                 break;
 
             case RUNNING_LEFT:
                 activeAnimation = perryAnimation; //idle animation
-                //
                 break;
 
             case START_RUN_RIGHT:
@@ -151,15 +148,12 @@ public class Perry {
         // Update horizontal velocity based on movement direction
         if (leftPressed) {
 
-
-
             //call handle move left function
             handleMoveLeft(dt);
 
         } else if (rightPressed) {
 
 //            System.out.println("Right Move");
-
 
             if (motionTimer > RUN_RIGHT_LOOP_DELAY ){
                 if ((currentState == State.START_RUN_RIGHT && perryAnimationRightRun.isComplete()) || (currentState == State.ROLLING_RIGHT && perryRollRight.isComplete())) {
@@ -212,7 +206,6 @@ public class Perry {
 //            System.out.println("SETTING TO IDLE A");
             activeAnimation.reset();
             motionTimer = 0;
-
 
         }
 
@@ -311,8 +304,8 @@ public class Perry {
             velocity.x = 0;
 
 
-            //float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
-            //position.x = tileBoundary - bounds.width - 1; // -1 for a small buffer
+            float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
+            position.x = tileBoundary - bounds.width - 1; // -1 for a small buffer
 
 
         }
@@ -353,8 +346,6 @@ public class Perry {
     public State getCurrentState() {
         return currentState;
     }
-
-
 
     public void setCurrentState(State currentState) {
         this.currentState = currentState;

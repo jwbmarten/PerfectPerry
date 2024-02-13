@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.jwb.perfect.PerryInputProcessor;
 import com.jwb.perfectActors.Perry;
 import com.jwb.perfectWorld.GameMap;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 public class PlayState extends State {
 
     private OrthographicCamera cam;
+    private ExtendViewport viewport;
 
     private PerryInputProcessor inputProcessor;
     //define Perry object
@@ -44,11 +46,11 @@ public class PlayState extends State {
         gameMap = new TiledGameMap();
 
         //initialize Perry
-        perry = new Perry(600, 300, gameMap);
+        perry = new Perry(1000, 800, gameMap);
 
         cam = new OrthographicCamera();
-        cam.setToOrtho(false, 970,546 );
-
+        //cam.setToOrtho(false, 970,546 );
+        viewport = new ExtendViewport(1600, 900, cam); // Initialize ExtendViewport with desired world width and height
 
         inputProcessor = new PerryInputProcessor(perry);
         Gdx.input.setInputProcessor(inputProcessor);
@@ -87,13 +89,16 @@ public class PlayState extends State {
 
         handleInput();
 
-
-
         perry.update(dt, inputProcessor.isLeftPressed(), inputProcessor.isRightPressed());
 
         //make camera follow our bird, the +80 just offsets the camera a bit in front of the bird
-        cam.position.x = Math.round(perry.getPosition().x + 86);
+        cam.position.x = Math.round(perry.getPosition().x + 96);
 
+        cam.position.y = Math.round(perry.getPosition().y + 320);
+
+
+
+        viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight()); // Update viewport
 
         //anytime we change where our camera is, we have to update it
         cam.update();
@@ -104,8 +109,6 @@ public class PlayState extends State {
     public void render(SpriteBatch sb) {
 
         gameMap.render(cam);
-
-
 
         //setting the projection matrix I think because we resized the camera view
         sb.setProjectionMatrix(cam.combined);
@@ -131,6 +134,10 @@ public class PlayState extends State {
         perry.dispose();
         System.out.println("Play State Disposed");
 
+    }
+
+    public void resize(int width, int height) {
+        viewport.update(width, height); // Ensure viewport updates on resize
     }
 
 }
