@@ -13,6 +13,7 @@ public class Perry {
 
     boolean leftMove;
     boolean rightMove;
+    boolean rightRoll;
 
     boolean grounded;
 
@@ -45,6 +46,8 @@ public class Perry {
 
     private Texture textureRunningRight;
 
+    private Texture textureRollRight;
+
     private Animation activeAnimation;
 
     private Animation perryAnimation;
@@ -52,6 +55,8 @@ public class Perry {
     private Animation perryAnimationRightRun;
 
     private Animation perryAnimationRightCycle;
+
+    private Animation perryRollRight;
 
     private State currentState;
 
@@ -64,7 +69,8 @@ public class Perry {
         IDLE,
         RUNNING_LEFT,
         START_RUN_RIGHT,
-        RUNNING_RIGHT
+        RUNNING_RIGHT,
+        ROLLING_RIGHT
     }
     public Perry(int x, int y, TiledGameMap currentLevel){
 
@@ -82,15 +88,27 @@ public class Perry {
         textureRunningRight = new Texture("RunningLoopCLEANEDUP.png");
         perryAnimationRightCycle = new Animation(new TextureRegion(textureRunningRight), 6, 1f, true);
 
+        textureRollRight = new Texture("RollRightWorking.png");
+        perryRollRight = new Animation( new TextureRegion(textureRollRight), 6, 1f, false);
+
         bounds = new Rectangle(x, y, texture.getWidth()/35, texture.getHeight());
         colliding = false;
 
         currentState = State.IDLE; // default state
 
+        rightRoll = false;
+
 
     }
 
-    public void update(float dt){
+    public void update(float dt, boolean leftPressed, boolean rightPressed){
+
+        if (leftPressed){
+        System.out.println("left pressed: " + leftPressed);}
+
+        if (rightPressed){
+        System.out.println("right pressed: " + rightPressed);}
+
 
         activeAnimation.update(dt);
 
@@ -98,6 +116,8 @@ public class Perry {
         switch (currentState) {
 
             case IDLE:
+
+
                 activeAnimation = perryAnimation; //idle animation
                 bounds = new Rectangle(position.x, position.y, (float) texture.getWidth() /35, texture.getHeight());
                 break;
@@ -115,6 +135,11 @@ public class Perry {
                 activeAnimation = perryAnimationRightCycle;
                 bounds = new Rectangle(position.x, position.y, (float) textureRunningRight.getWidth() /12, texture.getHeight());
                 break;
+
+            case ROLLING_RIGHT:
+                activeAnimation = perryRollRight;
+                break;
+
         }
 
         //Update vertical velocity based on gravity
@@ -124,15 +149,20 @@ public class Perry {
 
 
         // Update horizontal velocity based on movement direction
-        if (leftMove) {
+        if (leftPressed) {
+
+
 
             //call handle move left function
             handleMoveLeft(dt);
 
-        } else if (rightMove) {
+        } else if (rightPressed) {
+
+//            System.out.println("Right Move");
+
 
             if (motionTimer > RUN_RIGHT_LOOP_DELAY ){
-                if (currentState == State.START_RUN_RIGHT && perryAnimationRightRun.isComplete()) {
+                if ((currentState == State.START_RUN_RIGHT && perryAnimationRightRun.isComplete()) || (currentState == State.ROLLING_RIGHT && perryRollRight.isComplete())) {
                     currentState = State.RUNNING_RIGHT;
                     activeAnimation = perryAnimationRightCycle; // Switch to the running cycle animation
                     activeAnimation.reset(); // Reset the running cycle animation to start from the first frame
@@ -147,7 +177,9 @@ public class Perry {
         } else {
             // If not moving left or right, slow down to 0
 
-            if (!leftMove && !rightMove) {
+//            System.out.println("Neither Left nor right pressed");
+
+            if (!leftPressed && !rightPressed) {
                 velocity.x *= 0.2f; // Apply a simple friction factor
                 if (Math.abs(velocity.x) < 0.1f) {
                     velocity.x = 0;
@@ -191,28 +223,44 @@ public class Perry {
 
     public void setRightMove(boolean t) {
 
+        if ((currentState != State.ROLLING_RIGHT ) || perryRollRight.isComplete()) {
 
-        if (t) {
-            if (currentState != State.START_RUN_RIGHT ) {
-                currentState = State.START_RUN_RIGHT;
-                activeAnimation = perryAnimationRightRun;
-                activeAnimation.reset();
-                motionTimer = 0; //reset timer
-                idleTimer = 0;
-            }
-        }
-
-        else if (currentState == State.START_RUN_RIGHT){
+            if (t) {
+                if (currentState != State.START_RUN_RIGHT) {
+                    currentState = State.START_RUN_RIGHT;
+                    activeAnimation = perryAnimationRightRun;
+                    activeAnimation.reset();
+                    motionTimer = 0; //reset timer
+                    idleTimer = 0;
+                }
+            } else if (currentState == State.START_RUN_RIGHT) {
 //                System.out.println("SETTING TO IDLE B");
-            currentState = State.IDLE;
-            activeAnimation.reset();
-            motionTimer = 0;
-        }
+                currentState = State.IDLE;
+                activeAnimation.reset();
+                motionTimer = 0;
+            }
 
             if (leftMove && t) leftMove = false;
 
             rightMove = t;
         }
+    }
+
+    public void handleRoll(){
+
+        System.out.println("handlin' rollin'");
+
+        if (currentState!= State.ROLLING_RIGHT) {
+
+            if (this.rightMove) {
+
+                currentState = State.ROLLING_RIGHT;
+                activeAnimation = perryRollRight;
+                activeAnimation.reset();
+
+            }
+        }
+    }
 
     public void handleGravity(float dt){
 
@@ -270,6 +318,7 @@ public class Perry {
         }
     }
 
+
     public void handleIdle(float dt){
 
         idleTimer += dt;
@@ -285,8 +334,31 @@ public class Perry {
 
     }
 
+    public boolean isLeftMove() {
+        return leftMove;
+    }
+
+    public boolean isRightMove() {
+        return rightMove;
+    }
+
+    public boolean isRightRoll() {
+        return rightRoll;
+    }
+
+    public void setRightRoll(boolean rightRoll) {
+        this.rightRoll = rightRoll;
+    }
+
+    public State getCurrentState() {
+        return currentState;
+    }
 
 
+
+    public void setCurrentState(State currentState) {
+        this.currentState = currentState;
+    }
 
     public Vector3 getPosition() {
         return position;

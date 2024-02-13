@@ -21,6 +21,10 @@ public class PlayState extends State {
     //define Perry object
     private Perry perry;
 
+    private boolean leftPressed;
+
+    private boolean rightPressed;
+
     private Texture demolvl;
 
     private Vector2 groundPos1, groundPos2;
@@ -53,6 +57,17 @@ public class PlayState extends State {
 
     }
 
+    public boolean checkPerryDirection(String direction){
+
+        if (direction.toLowerCase() == "left"){
+            return inputProcessor.isLeftPressed();
+        } else if (direction.toLowerCase() == "right") {
+            return inputProcessor.isRightPressed();
+        }
+
+        return false;
+    }
+
     @Override
     protected void handleInput() {
         if (Gdx.input.isTouched()) {
@@ -72,7 +87,9 @@ public class PlayState extends State {
 
         handleInput();
 
-        perry.update(dt);
+
+
+        perry.update(dt, inputProcessor.isLeftPressed(), inputProcessor.isRightPressed());
 
         //make camera follow our bird, the +80 just offsets the camera a bit in front of the bird
         cam.position.x = Math.round(perry.getPosition().x + 86);

@@ -6,6 +6,10 @@ import com.jwb.perfectActors.Perry;
 
 public class PerryInputProcessor implements InputProcessor {
 
+    private boolean rightPressed;
+
+    private boolean leftPressed;
+
     //initialize Perry field that will be assigned via constructor
     private Perry perry;
 
@@ -43,9 +47,15 @@ public class PerryInputProcessor implements InputProcessor {
         {
             case Keys.LEFT:
                 perry.setLeftMove(true);
+                this.leftPressed = true;
                 break;
             case Keys.RIGHT:
                 perry.setRightMove(true);
+                this.rightPressed = true;
+                break;
+
+            case Keys.SPACE:
+                perry.handleRoll();
                 break;
         }
         return true;
@@ -63,12 +73,24 @@ public class PerryInputProcessor implements InputProcessor {
         {
             case Keys.LEFT:
                 perry.setLeftMove(false);
+                this.leftPressed = false;
                 break;
             case Keys.RIGHT:
+                System.out.println("Right button released!");
+                this.rightPressed = false;
                 perry.setRightMove(false);
                 break;
+
         }
         return true;
+    }
+
+    public boolean isRightPressed(){
+        return rightPressed;
+    }
+
+    public boolean isLeftPressed(){
+        return leftPressed;
     }
 
     /**
