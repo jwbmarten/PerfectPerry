@@ -45,12 +45,14 @@ public class PerryInputProcessor implements InputProcessor {
     {
         switch (keycode)
         {
-            case Keys.LEFT:
-                perry.setLeftMove(true);
+            //case Keys.LEFT:
+            case Keys.A:
+                //perry.setLeftMove(true);
                 this.leftPressed = true;
                 break;
-            case Keys.RIGHT:
-                perry.setRightMove(true);
+            //case Keys.RIGHT:
+            case Keys.D:
+                //perry.setRightMove(true);
                 this.rightPressed = true;
                 break;
 
@@ -71,14 +73,16 @@ public class PerryInputProcessor implements InputProcessor {
     public boolean keyUp(int keycode) {
         switch (keycode)
         {
-            case Keys.LEFT:
-                perry.setLeftMove(false);
+            //case Keys.LEFT:
+            case Keys.A:
+                //perry.setLeftMove(false);
                 this.leftPressed = false;
                 break;
-            case Keys.RIGHT:
+            //case Keys.RIGHT:
+            case Keys.D:
                 System.out.println("Right button released!");
                 this.rightPressed = false;
-                perry.setRightMove(false);
+                //perry.setRightMove(false);
                 break;
 
         }

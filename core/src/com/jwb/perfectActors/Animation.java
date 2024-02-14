@@ -4,10 +4,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.Array;
 
 /**
- * Created by Jake on 2/9/2024, adapted from Brent Aureli flappybird demo
+ * Created by Jake on 2/9/2024
  */
 public class Animation {
-    Array<TextureRegion> frames;
+    private Array<TextureRegion> frames;
     float maxFrameTime;
     float currentFrameTime;
     int frameCount;
@@ -68,6 +68,7 @@ public class Animation {
 //            region.flip(true, false);
 //    }
 
+
     public TextureRegion getFrame(){
 
 //        System.out.println("Current frame count is: " + frame + " of " + frameCount );
@@ -75,7 +76,18 @@ public class Animation {
         return frames.get(frame);
     }
 
+    public float getFrameWidth(){
+
+        return  this.frames.get(0).getRegionWidth()/2f; }
+
+    public float getFrameHeight(){
+
+        return  this.frames.get(0).getRegionHeight(); }
+
+
     public boolean isComplete() {
         return frame == frameCount -1 ;
     }
+
+    public boolean isCycle() {return isCycle;}
 }
