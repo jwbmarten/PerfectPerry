@@ -58,7 +58,7 @@ public class PlayState extends State {
 
 
         // 16:9 aspect ratio
-        viewport = new ExtendViewport(1200, 675, cam); // Initialize ExtendViewport with desired world width and height
+        viewport = new ExtendViewport(1920, 1080, cam); // Initialize ExtendViewport with desired world width and height
 
         // 16:9 aspect ratio
 //        viewport = new ExtendViewport(2400, 1350, cam); // Initialize ExtendViewport with desired world width and height
@@ -106,7 +106,7 @@ public class PlayState extends State {
         Vector3 perryPosition = new Vector3(perry.getPosition().x, perry.getPosition().y, 0);
 
         // Set the target position for the camera, offset if desired
-        targetPosition.set(perryPosition.x + 96, perryPosition.y + 320, 0);
+        targetPosition.set(perryPosition.x + 96, perryPosition.y + 220, 0);
 
         // Interpolate the camera's position towards the target position
         cam.position.lerp(targetPosition, lerpFactor);

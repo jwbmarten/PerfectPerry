@@ -89,5 +89,11 @@ public class Animation {
         return frame == frameCount -1 ;
     }
 
+    public int animationPercentComplete() {
+
+        return (int) (frame / frameCount);
+    }
+
+
     public boolean isCycle() {return isCycle;}
 }
