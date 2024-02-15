@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="left-up" width="100" height="35" tilewidth="32" tileheight="32" infinite="0" nextlayerid="2" nextobjectid="1">
- <tileset firstgid="1" source="DemoShop.tsx"/>
- <tileset firstgid="174" source="DemoShopCollide.tsx"/>
+ <tileset firstgid="1" source="DemoShopPadded.tsx"/>
+ <tileset firstgid="174" source="DemoShopPadded.tsx"/>
  <layer id="1" name="Tile Layer 1" width="100" height="35" offsetx="1.333" offsety="-1.66667">
   <data encoding="csv">
 16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,

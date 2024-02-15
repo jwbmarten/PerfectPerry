@@ -252,6 +252,7 @@ public class Perry {
 
         System.out.println("handlin' rollin'");
 
+
         if (currentState!= State.ROLLING_RIGHT) {
 
             if (this.rightMove) {

@@ -14,6 +14,12 @@ public class PerryInputProcessor implements InputProcessor {
     private Perry perry;
 
 
+
+    // For Debug - when space is press, set to true and then PlayState update will check if true
+    // , if true return camera position and then set to false
+
+    private boolean getCameraPosition;
+
     ////////////////////////////////////////////////////
     //  C O N S T R U C T O R  /////////////////////////
     ////////////////////////////////////////////////////
@@ -58,6 +64,7 @@ public class PerryInputProcessor implements InputProcessor {
 
             case Keys.SPACE:
                 perry.handleRoll();
+                getCameraPosition = true;
                 break;
         }
         return true;
@@ -95,6 +102,14 @@ public class PerryInputProcessor implements InputProcessor {
 
     public boolean isLeftPressed(){
         return leftPressed;
+    }
+
+    public boolean isGetCameraPosition() {
+        return getCameraPosition;
+    }
+
+    public void setGetCameraPosition(boolean getCameraPosition) {
+        this.getCameraPosition = getCameraPosition;
     }
 
     /**

@@ -3,11 +3,15 @@ package com.jwb.perfectWorld;
 import static com.jwb.perfectWorld.TileType.TILE_SIZE;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTile;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
+import com.badlogic.gdx.maps.tiled.TiledMapTileSet;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.maps.tiled.tiles.StaticTiledMapTile;
 
 public class TiledGameMap extends GameMap {
 
@@ -16,6 +20,17 @@ public class TiledGameMap extends GameMap {
 
     public TiledGameMap() {
         tiledMap = new TmxMapLoader().load("DemoShopV1.tmx");
+
+//        // Apply nearest filter to all tiles
+//        for (TiledMapTileSet tileset : tiledMap.getTileSets()) {
+//            for (TiledMapTile tile : tileset) {
+//                if (tile instanceof StaticTiledMapTile) {
+//                    ((StaticTiledMapTile) tile).getTextureRegion().getTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+//                }
+//            }
+//        }
+
+
         tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap);
         TileType.loadTileTypes(tiledMap); // Make sure to load tile types after loading the map
     }
