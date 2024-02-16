@@ -93,9 +93,9 @@ public class Animation {
         return frame == frameCount -1 ;
     }
 
-    public int animationPercentComplete() {
+    public float animationPercentComplete() {
 
-        return (int) (frame / frameCount);
+        return  ((float)frame / frameCount);
     }
 
 

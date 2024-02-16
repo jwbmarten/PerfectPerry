@@ -41,6 +41,8 @@ public class Perry {
     //this will represent Perry's velocity
     private Vector3 velocity;
 
+    private float newVelocityX;
+
 
     //this will be Perry's hitbox
     private Rectangle bounds;
@@ -307,7 +309,18 @@ public class Perry {
             return;
         }
 
-        float newVelocityX = Math.min((velocity.x * 1.5f) + 1.5f * dt, maxRunSpeed); // Desired velocity increment
+        if (currentState == State.ROLLING_RIGHT) {
+
+            System.out.println("current x velocity: " + velocity.x);
+
+            System.out.println("animation completion: " + activeAnimation.animationPercentComplete());
+
+            newVelocityX = Math.max(maxRunSpeed * (2f - activeAnimation.animationPercentComplete()), 5);
+
+        } else {
+
+            newVelocityX = Math.min((velocity.x * 1.5f) + 1.5f * dt, maxRunSpeed); // Desired velocity increment
+        }
 
         //check that future position plus with width of Perry is not a collidable tile
         float potentialX = position.x + bounds.width + newVelocityX;
@@ -365,6 +378,9 @@ public class Perry {
 //
 //        System.out.println("Position plus width collidable?: " + currentLevel.isTileCollidable(position.x + ( bounds.width), position.y));
 
+
+        // Check that current (RIGHT ONLY FOR NOW) bounds not in collidable tile
+
         if (currentLevel.isTileCollidable(position.x + (float) bounds.width, position.y)){
 
             System.out.println("Idle state detected collision!");
@@ -372,6 +388,8 @@ public class Perry {
             float tileBoundary = (float) (Math.floor(position.x / TILE_SIZE) * TILE_SIZE);
 
             repositionHorizontal = 0f;
+
+            //check that no additional collidable tiles to the left of the one detected, adjust repositionHorizontal if so
 
             while (currentLevel.isTileCollidable((position.x + (float) bounds.width) - repositionHorizontal, position.y)){
 
