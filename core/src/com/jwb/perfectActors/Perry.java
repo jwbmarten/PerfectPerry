@@ -304,10 +304,8 @@ public class Perry {
     public void handleMoveRight(float dt) {
 //        motionTimer += dt;
 
-        if (currentState == State.CLING_RIGHT) {
 
-            return;
-        }
+
 
         if (currentState == State.ROLLING_RIGHT) {
 
@@ -333,8 +331,8 @@ public class Perry {
             velocity.x = 0;
 
 
-            float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
-            position.x = tileBoundary + 96; // -1 for a small buffer
+//            float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
+//            position.x = tileBoundary ; // -1 for a small buffer
 
             activeAnimation.reset();
             changeState(State.CLING_RIGHT);

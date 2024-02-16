@@ -94,6 +94,9 @@ public class PlayState extends State {
 
             // Now, you can use touchPos.x and touchPos.y to check the tile
             boolean collidable = gameMap.isTileCollidable(touchPos.x, touchPos.y);
+
+            System.out.println("X position clicked: " + Gdx.input.getX());
+            System.out.println("Y position clicked: " + Gdx.input.getY());
             System.out.println("Tile collidable: " + collidable);
         }
     }
