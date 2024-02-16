@@ -17,6 +17,8 @@ public class Perry {
 
     boolean grounded;
 
+    private float repositionHorizontal;
+
     private float motionTimer = 0f; // initialize a float to track time for motion delays
 
     private static final float STATE_TRANSITION_DEBOUNCE_TIME = 0.1f; // 100 ms debounce time to prevent accidental state switching
@@ -26,6 +28,8 @@ public class Perry {
     private static final float RUNNING_RIGHT_DELAY = 0.3f; //500 ms
 
     private static final float RUN_RIGHT_LOOP_DELAY = 0.4f; // accounts for length of idle to running animation
+
+    private int maxRunSpeed = 10;
 
     //static int to represent gravity
     private static final int GRAVITY = -15;
@@ -57,6 +61,7 @@ public class Perry {
         RUNNING_LEFT,
         START_RUN_RIGHT,
         RUNNING_RIGHT,
+        CLING_RIGHT,
         ROLLING_RIGHT
     }
     public Perry(int x, int y, TiledGameMap currentLevel){
@@ -82,6 +87,7 @@ public class Perry {
     }
 
     public void update(float dt, boolean leftPressed, boolean rightPressed){
+
 
         if ((leftPressed)){
             leftMove = true;
@@ -127,23 +133,25 @@ public class Perry {
         }
 
 
-        {
+
             // If not moving left or right, slow down to 0
 
 
 
             if (!leftPressed && !rightPressed) {
 
-//                System.out.println("Neither Left nor right pressed");
-                velocity.x *= 0.2f; // Apply a simple friction factor
                 if (Math.abs(velocity.x) < 0.1f) {
                     velocity.x = 0;
                     handleIdle(dt);
 
+                } else {
+
+                    //                System.out.println("Neither Left nor right pressed");
+                    velocity.x *= 0.2f; // Apply a simple friction factor
                 }
             }
 
-        }
+
 
         activeAnimation.update(dt);
 
@@ -162,8 +170,8 @@ public class Perry {
 //             System.out.println("Setting state to running left and resetting active animation.");
             changeState(State.RUNNING_LEFT);
             activeAnimation.reset();
-            motionTimer = 0;
-            idleTimer = 0;
+//            motionTimer = 0;
+//            idleTimer = 0;
             }
 
 
@@ -184,15 +192,11 @@ public class Perry {
             leftFlag = true;
             leftMove = false;
             rightMove = true;
-            motionTimer = 0; //reset timer
-            idleTimer = 0;
+//            motionTimer = 0; //reset timer
+//            idleTimer = 0;
         }
 
-
-
 //        System.out.println("Choosing Right Move State!");
-
-
 
             // if the current state is rolling right and the animation is
             // complete, set state to running right
@@ -202,8 +206,8 @@ public class Perry {
                 System.out.print("State changed from rolling right to start run right");
                 leftMove = false;
                 rightMove = true;
-                motionTimer = 0; //reset timer
-                idleTimer = 0;
+//                motionTimer = 0; //reset timer
+//                idleTimer = 0;
 
             }
 
@@ -214,18 +218,16 @@ public class Perry {
                 System.out.print("State changed from idle or moving left to start run right");
                 leftMove = false;
                 rightMove = true;
-                motionTimer = 0; //reset timer
-                idleTimer = 0;
+//                motionTimer = 0; //reset timer
+//                idleTimer = 0;
             }
-
 
 
             if (currentState != State.RUNNING_RIGHT) {
 
-                motionTimer += dt;
+//                motionTimer += dt;
 
             }
-
 
             //if the current state is start running right and the animation is complete, set the state to running right
             if ((currentState == State.START_RUN_RIGHT) && activeAnimation.isComplete()){
@@ -293,14 +295,19 @@ public class Perry {
     public void handleMoveLeft(float dt){
 
 
-        velocity.x = Math.min((velocity.x * 1.05f) - 1.5f * dt, -14); // Gradual speed build up to -4
+        velocity.x = Math.min((velocity.x * 1.05f) - 1.5f * dt, -maxRunSpeed); // Gradual speed build up to -4
 
     }
 
     public void handleMoveRight(float dt) {
-        motionTimer += dt;
+//        motionTimer += dt;
 
-        float newVelocityX = Math.min((velocity.x * 1.5f) + 1.5f * dt, 8); // Desired velocity increment
+        if (currentState == State.CLING_RIGHT) {
+
+            return;
+        }
+
+        float newVelocityX = Math.min((velocity.x * 1.5f) + 1.5f * dt, maxRunSpeed); // Desired velocity increment
 
         //check that future position plus with width of Perry is not a collidable tile
         float potentialX = position.x + bounds.width + newVelocityX;
@@ -314,7 +321,20 @@ public class Perry {
 
 
             float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
-            position.x = tileBoundary - bounds.width - 1; // -1 for a small buffer
+            position.x = tileBoundary + 96; // -1 for a small buffer
+
+            activeAnimation.reset();
+            changeState(State.CLING_RIGHT);
+//            System.out.println("State changed from moving right to cling right");
+//
+//            System.out.println("Perry current X pos: " + position.x + "Perry current Y pos: " + position.y);
+//
+//            System.out.println("current bounds width: " + bounds.getWidth());
+//
+//            System.out.println("Perry position + width: " + position.x + bounds.getWidth());
+//
+//            System.out.println("Position plus width collidable?: " + currentLevel.isTileCollidable(position.x + bounds.width, position.y));
+
 
 
         }
@@ -322,6 +342,48 @@ public class Perry {
 
 
     public void handleIdle(float dt){
+
+//        System.out.println("Handlin; idlin'");
+
+
+        if (currentState == State.CLING_RIGHT){
+            activeAnimation.reset();
+            changeState(State.IDLE);
+            //handleIdle(dt);
+            System.out.println("State changed from cling right to idle");
+            bounds = new Rectangle(position.x, position.y, animationManager.getIdleWidth(), animationManager.getIdleHeight());
+
+        }
+
+
+//        System.out.println("Perry current X pos: " + position.x + "Perry current Y pos: " + position.y);
+//
+//
+//        System.out.println("current bounds width: " + bounds.getWidth());
+//
+//        System.out.println("Perry position + width: " + position.x + bounds.getWidth());
+//
+//        System.out.println("Position plus width collidable?: " + currentLevel.isTileCollidable(position.x + ( bounds.width), position.y));
+
+        if (currentLevel.isTileCollidable(position.x + (float) bounds.width, position.y)){
+
+            System.out.println("Idle state detected collision!");
+
+            float tileBoundary = (float) (Math.floor(position.x / TILE_SIZE) * TILE_SIZE);
+
+            repositionHorizontal = 0f;
+
+            while (currentLevel.isTileCollidable((position.x + (float) bounds.width) - repositionHorizontal, position.y)){
+
+                System.out.println("adjusting tile boundary");
+
+                repositionHorizontal += (float) TILE_SIZE;
+
+            }
+
+            position.x = tileBoundary - bounds.width - repositionHorizontal; // -1 for a small buffer
+
+        }
 
         idleTimer += dt;
 
@@ -331,6 +393,9 @@ public class Perry {
                 changeState(State.IDLE);
             }
         }
+
+
+
 
         velocity.x = 0;
 

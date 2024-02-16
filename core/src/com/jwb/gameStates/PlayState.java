@@ -121,6 +121,7 @@ public class PlayState extends State {
 
         if (inputProcessor.isGetCameraPosition()){
 
+
             System.out.println("Camera position x: " + cam.position.x + "Camera position y: " + cam.position.y);
 
             System.out.println("Graphics width: " + Gdx.graphics.getWidth() + "Graphics height: " + Gdx.graphics.getHeight());

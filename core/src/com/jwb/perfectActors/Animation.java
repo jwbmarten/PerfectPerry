@@ -1,6 +1,7 @@
 package com.jwb.perfectActors;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 
 /**
@@ -15,6 +16,8 @@ public class Animation {
 
     boolean isCycle;
 
+    Rectangle bounds;
+
 
     public Animation(TextureRegion region, int frameCount, float cycleTime, boolean isCycle){
         frames = new Array<TextureRegion>();
@@ -28,6 +31,7 @@ public class Animation {
         maxFrameTime = cycleTime / frameCount;
         frame = 0;
         this.isCycle = isCycle;
+
     }
 
 

@@ -8,22 +8,29 @@ public class PerryAnimationMGMT {
 
     Perry perry;
 
+
+    public float animationWidth;
+    public float animationHeight;
+
     private Animation perryIdle;
     private Animation perryStartRunRight;
     private Animation perryRunRight;
     private Animation perryRollRight;
+    private Animation perryClingRight;
 
 
 
     private float idleWidth;
     private float idleHeight;
+
+
     private int idleFrameCount;
     private float idleCycleTime;
 
 
     private float runStartDelay;
-    private float startToRunWidth;
-    private float startToRunHeight;
+    public float startToRunWidth;
+    public float startToRunHeight;
     private int startToRunFrameCount;
     private float startToRunCycleTime;
 
@@ -38,6 +45,11 @@ public class PerryAnimationMGMT {
     private float rollHeight;
     private int rollFrameCount;
     private float rollCycleTime;
+
+    private float clingWidth;
+    private float clingHeight;
+    private int clingFrameCount;
+    private float clingCycleTime;
 
 
     private Rectangle bounds;
@@ -81,6 +93,7 @@ public class PerryAnimationMGMT {
 
         //bounds = new Rectangle()
 
+        ////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -142,10 +155,40 @@ public class PerryAnimationMGMT {
 
 
 
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                W A L L   C L I N G                                   ///
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        clingFrameCount = 1;
+        clingCycleTime = 6f;
+        boolean clingIsCycle = true;
+
+        ///                               C L I N G    R I G H T                                 ///
+
+        Texture textureClingRight = new Texture("RightWallCling.png");
+        perryClingRight = new Animation(new TextureRegion(textureClingRight), clingFrameCount, clingCycleTime, clingIsCycle);
+
+        clingWidth = textureClingRight.getWidth() /((float) runFrameCount);
+        clingHeight = textureClingRight.getHeight();
+
+
+        ///                                C L I N G   L E F T                                    ///
+
+        ///TODO
+        ///
+        ///
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////
         ///                                   R O L L I N G                                      ///
+        ////////////////////////////////////////////////////////////////////////////////////////////
 
         rollFrameCount = 6;
         rollCycleTime = .6f;
@@ -178,20 +221,36 @@ public class PerryAnimationMGMT {
         switch (state) {
             case IDLE:
                 System.out.println("Returning IDLE animation");
+                this.animationWidth = idleWidth;
+                this.animationHeight = idleHeight;
                 return perryIdle;
             case START_RUN_RIGHT:
                 System.out.println("Returning START_RUN_RIGHT animation");
+                this.animationWidth = startToRunHeight;
+                this.animationHeight = startToRunHeight;
+                this.animationWidth = startToRunWidth;
+                this.animationHeight = startToRunHeight;
                 return perryStartRunRight;
             case RUNNING_RIGHT:
                 System.out.println("Returning RUNNING_RIGHT animation");
+                this.animationWidth = runWidth;
+                this.animationHeight = runHeight;
                 return perryRunRight;
+            case CLING_RIGHT:
+                System.out.println("Returning CLING_RIGHT animation");
+                this.animationWidth = clingWidth;
+                this.animationHeight = clingHeight;
+                return perryClingRight;
             case ROLLING_RIGHT:
                 System.out.println("Returning ROLLING_RIGHT animation");
+                this.animationWidth = rollWidth;
+                this.animationHeight = rollHeight;
                 return perryRollRight;
             default:
                 System.out.println("Returning default (IDLE) animation");
-                return perryIdle; // Ensure this is not null
-        }
+                this.animationWidth = idleWidth;
+                this.animationHeight = idleHeight;
+                return perryIdle;        }
     }
 
 
