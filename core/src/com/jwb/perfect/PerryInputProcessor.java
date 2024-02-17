@@ -63,7 +63,7 @@ public class PerryInputProcessor implements InputProcessor {
                 break;
             //case if space is pressed
             case Keys.SPACE:
-                perry.handleRoll();
+                perry.setRoll();
                 getCameraPosition = true;
                 break;
             //case if L is pressed
@@ -92,6 +92,8 @@ public class PerryInputProcessor implements InputProcessor {
             case Keys.D:
                 System.out.println("Right button released!");
                 this.rightPressed = false;
+                if (perry.getCurrentState() == Perry.State.CLING_RIGHT){
+                perry.setCanMove(true);}
                 //perry.setRightMove(false);
                 break;
 
