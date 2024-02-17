@@ -15,6 +15,9 @@ public class Perry {
     boolean rightMove;
     boolean rightRoll;
 
+    // determines if Perry can stop his current animation or not
+    boolean canStop;
+
     boolean grounded;
 
     private float repositionHorizontal;
@@ -64,7 +67,8 @@ public class Perry {
         START_RUN_RIGHT,
         RUNNING_RIGHT,
         CLING_RIGHT,
-        ROLLING_RIGHT
+        ROLLING_RIGHT,
+        QUICK_ATTACK_RIGHT
     }
     public Perry(int x, int y, TiledGameMap currentLevel){
 
@@ -91,6 +95,7 @@ public class Perry {
     public void update(float dt, boolean leftPressed, boolean rightPressed){
 
 
+
         if ((leftPressed)){
             leftMove = true;
             rightMove = false;
@@ -100,7 +105,7 @@ public class Perry {
 
         }
 
-        if (rightPressed){
+        if (rightPressed && (currentState != State.ROLLING_RIGHT) && (currentState != State.QUICK_ATTACK_RIGHT)){
             chooseRightMoveState(dt);
             setBounds(new Rectangle(position.x, position.y, activeAnimation.getFrameWidth(), activeAnimation.getFrameHeight()));
             handleMoveRight(dt);
@@ -109,15 +114,6 @@ public class Perry {
 //        System.out.println("right pressed: " + rightPressed);
 
         }
-
-
-        if (activeAnimation == null){
-            System.out.println("active animation is null :(");
-        }
-
-
-
-
 
 
         //Update vertical velocity based on gravity
@@ -140,7 +136,11 @@ public class Perry {
 
 
 
-            if (!leftPressed && !rightPressed) {
+            if ((!leftPressed && !rightPressed)) {
+
+
+
+//                System.out.println("neither left nor right pressed!");
 
                 if (Math.abs(velocity.x) < 0.1f) {
                     velocity.x = 0;
@@ -148,7 +148,7 @@ public class Perry {
 
                 } else {
 
-                    //                System.out.println("Neither Left nor right pressed");
+                                    System.out.println("Neither Left nor right pressed");
                     velocity.x *= 0.2f; // Apply a simple friction factor
                 }
             }
@@ -208,8 +208,7 @@ public class Perry {
                 System.out.print("State changed from rolling right to start run right");
                 leftMove = false;
                 rightMove = true;
-//                motionTimer = 0; //reset timer
-//                idleTimer = 0;
+
 
             }
 
@@ -220,14 +219,12 @@ public class Perry {
                 System.out.print("State changed from idle or moving left to start run right");
                 leftMove = false;
                 rightMove = true;
-//                motionTimer = 0; //reset timer
-//                idleTimer = 0;
+
             }
 
 
             if (currentState != State.RUNNING_RIGHT) {
 
-//                motionTimer += dt;
 
             }
 
@@ -262,9 +259,34 @@ public class Perry {
             if (this.rightMove) {
 
                 changeState(State.ROLLING_RIGHT);
+                canStop = false;
 
 
             }
+        }
+
+        if ((currentState == State.ROLLING_RIGHT) && (activeAnimation.isComplete())){
+            changeState(State.IDLE);
+        }
+    }
+
+    public void handleQuickAttack(){
+
+        System.out.println("Starting Quick Attack!");
+
+
+        if (currentState != State.QUICK_ATTACK_RIGHT) {
+
+            if (this.rightMove) {
+
+                changeState(State.QUICK_ATTACK_RIGHT);
+                velocity.x = 0;
+            }
+        }
+
+        if ((currentState == State.QUICK_ATTACK_RIGHT) && (activeAnimation.isComplete())) {
+
+            changeState(State.IDLE);
         }
     }
 
@@ -302,9 +324,6 @@ public class Perry {
     }
 
     public void handleMoveRight(float dt) {
-//        motionTimer += dt;
-
-
 
 
         if (currentState == State.ROLLING_RIGHT) {
@@ -354,7 +373,7 @@ public class Perry {
 
     public void handleIdle(float dt){
 
-//        System.out.println("Handlin; idlin'");
+        System.out.println("Handlin; idlin'");
 
 
         if (currentState == State.CLING_RIGHT){
@@ -401,14 +420,14 @@ public class Perry {
 
         }
 
-        idleTimer += dt;
+//        idleTimer += dt;
 
-        if (idleTimer > STATE_TRANSITION_DEBOUNCE_TIME) {
-//            System.out.println("SETTING TO IDLE C");
+//        if (idleTimer > STATE_TRANSITION_DEBOUNCE_TIME) {
+////            System.out.println("SETTING TO IDLE C");
             if (currentState != State.IDLE) {
                 changeState(State.IDLE);
             }
-        }
+//        }
 
 
 

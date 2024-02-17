@@ -17,6 +17,7 @@ public class PerryAnimationMGMT {
     private Animation perryRunRight;
     private Animation perryRollRight;
     private Animation perryClingRight;
+    private Animation perryQuickAttackRight;
 
 
 
@@ -51,6 +52,11 @@ public class PerryAnimationMGMT {
     private int clingFrameCount;
     private float clingCycleTime;
 
+    private float quickAttackWidth;
+    private float quickAttackHeight;
+    private int quickAttackFrameCount;
+    private float quickAttackCycleTime;
+
 
     private Rectangle bounds;
 
@@ -80,7 +86,7 @@ public class PerryAnimationMGMT {
         ///                                      I D L E                                         ///
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        idleFrameCount = 35;
+        idleFrameCount = 33;
         idleCycleTime = 2.8f;
         boolean idleIsCycle = true;
 
@@ -123,7 +129,7 @@ public class PerryAnimationMGMT {
         ///                                   R U N N I N G                                      ///
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        runFrameCount = 6;
+        runFrameCount = 8;
         runCycleTime = 1f;
         runStartDelay = 0.3f;
         timeToRunCycle = 0.4f;
@@ -215,6 +221,25 @@ public class PerryAnimationMGMT {
 
 
 
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ///                               Q U I C K   A T T A C K                                ///
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+
+        quickAttackFrameCount = 10;
+        quickAttackCycleTime = 1f;
+        boolean quickAttackIsCycle = false;
+
+        ///                          Q U I C K   A T T A C K   R I G H T                         ///
+
+        Texture textureQuickAttackRight = new Texture("PerryQuickAttackRight.png");
+        perryQuickAttackRight = new Animation(new TextureRegion(textureQuickAttackRight), quickAttackFrameCount, quickAttackCycleTime, quickAttackIsCycle);
+        quickAttackWidth = textureQuickAttackRight.getWidth();
+        quickAttackHeight = textureQuickAttackRight.getHeight();
+
     }
 
     public Animation getAnimation(Perry.State state) {
@@ -246,6 +271,11 @@ public class PerryAnimationMGMT {
                 this.animationWidth = rollWidth;
                 this.animationHeight = rollHeight;
                 return perryRollRight;
+            case QUICK_ATTACK_RIGHT:
+                System.out.println("Returning QUICK_ATTACK_RIGHT animation");
+                this.animationWidth = quickAttackWidth;
+                this.animationHeight = quickAttackHeight;
+                return perryQuickAttackRight;
             default:
                 System.out.println("Returning default (IDLE) animation");
                 this.animationWidth = idleWidth;

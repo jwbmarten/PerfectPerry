@@ -51,21 +51,24 @@ public class PerryInputProcessor implements InputProcessor {
     {
         switch (keycode)
         {
-            //case Keys.LEFT:
+            //case if A is pressed
             case Keys.A:
                 //perry.setLeftMove(true);
                 this.leftPressed = true;
                 break;
-            //case Keys.RIGHT:
+            //case if D is pressed
             case Keys.D:
                 //perry.setRightMove(true);
                 this.rightPressed = true;
                 break;
-
+            //case if space is pressed
             case Keys.SPACE:
                 perry.handleRoll();
                 getCameraPosition = true;
                 break;
+            //case if L is pressed
+            case Keys.L:
+                perry.handleQuickAttack();
         }
         return true;
     }
