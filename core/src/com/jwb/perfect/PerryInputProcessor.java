@@ -4,6 +4,8 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
 import com.jwb.perfectActors.Perry;
 
+import java.util.List;
+
 public class PerryInputProcessor implements InputProcessor {
 
     private boolean rightPressed;
@@ -55,6 +57,7 @@ public class PerryInputProcessor implements InputProcessor {
             case Keys.A:
                 //perry.setLeftMove(true);
                 this.leftPressed = true;
+                System.out.println("Left key pressed!");
                 break;
             //case if D is pressed
             case Keys.D:
@@ -67,6 +70,10 @@ public class PerryInputProcessor implements InputProcessor {
                 if (perry.getCurrentState() == Perry.State.IDLE){
                     perry.setJumpBack();
                 }
+                if (perry.getCurrentState() == Perry.State.IDLE_LEFT){
+                    perry.setJumpBack();
+                }
+
                 else if (perry.getCanMove()){
                 perry.setRoll();
                 }
@@ -92,7 +99,10 @@ public class PerryInputProcessor implements InputProcessor {
             //case Keys.LEFT:
             case Keys.A:
                 //perry.setLeftMove(false);
+                System.out.println("Left button released!");
                 this.leftPressed = false;
+                if (perry.getCurrentState() == Perry.State.CLING_LEFT){
+                    perry.setCanMove(true);}
                 break;
             //case Keys.RIGHT:
             case Keys.D:
@@ -105,6 +115,33 @@ public class PerryInputProcessor implements InputProcessor {
 
         }
         return true;
+    }
+
+    /**
+     * Returns handled input boolean array for Perry Update Method
+     *
+     * Index 0 : left pressed
+     * Index 1 : right pressed
+     *
+     * @return
+     */
+    public boolean[] returnHandledInputs(){
+
+        boolean[] inputArray = new boolean[2];
+
+        if (this.leftPressed && this.rightPressed){
+
+            inputArray[0] = false;
+            inputArray[1] = true;
+
+        } else{
+
+            inputArray[0] = this.leftPressed;
+            inputArray[1] = this.rightPressed;
+        }
+
+        return inputArray;
+
     }
 
     public boolean isRightPressed(){

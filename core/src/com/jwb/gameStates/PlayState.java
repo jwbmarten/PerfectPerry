@@ -129,7 +129,7 @@ public class PlayState extends State {
         // Ensure the camera updates its matrixes
         cam.update();
 
-        perry.update(dt, inputProcessor.isLeftPressed(), inputProcessor.isRightPressed());
+        perry.update(dt, inputProcessor.returnHandledInputs()[0], inputProcessor.returnHandledInputs()[1]);
 
         yellowFellow.update(dt);
 

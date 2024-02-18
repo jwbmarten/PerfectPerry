@@ -61,7 +61,13 @@ public class Perry {
 
     public enum State {
         IDLE,
+        IDLE_LEFT,
+        START_RUN_LEFT,
         RUNNING_LEFT,
+        CLING_LEFT,
+        ROLLING_LEFT,
+        JUMP_BACK_LEFT,
+        QUICK_ATTACK_LEFT,
         START_RUN_RIGHT,
         RUNNING_RIGHT,
         CLING_RIGHT,
@@ -97,6 +103,8 @@ public class Perry {
 
     public void update(float dt, boolean leftPressed, boolean rightPressed){
 
+        if (leftPressed && rightPressed){
+        System.out.println("Perry Update.   Left Pressed:  " + leftPressed + " Right Pressed:   " + rightPressed);}
 
         //////////////////////////////////////////////////////////////////////
         // STAGE 1: here we need to consider the possible user inputs, but also
@@ -114,34 +122,35 @@ public class Perry {
         if (!canMove) {
 
             //if the user is rolling, call the handle roll method
-            if (currentState == State.ROLLING_RIGHT) {
+            if ((currentState == State.ROLLING_RIGHT) || (currentState == State.ROLLING_LEFT)) {
                 handleRoll(dt);
             }
 
-            if (currentState == State.QUICK_ATTACK_RIGHT){
+            if ((currentState == State.QUICK_ATTACK_RIGHT) || (currentState == State.QUICK_ATTACK_LEFT)){
                 handleQuickAttack();
             }
 
-            if (currentState == State.JUMP_BACK_RIGHT){
+            if ((currentState == State.JUMP_BACK_RIGHT) || (currentState == State.JUMP_BACK_LEFT)){
                 handleJumpBack(dt);
             }
         }
 
-        if ((leftPressed && canMove)){
+        if ((leftPressed) && (!rightPressed) && (canMove)){
 
-            leftMove = true;
-            rightMove = false;
+//            leftMove = true;
+//            rightMove = false;
 
             //call handle move left function
+//            System.out.println("calling handle move Left");
             handleMoveLeft(dt);
 
 
         }
 
-        if (rightPressed && canMove) {
+        if ((rightPressed) && (!leftPressed) && (canMove)) {
 
-            rightMove = true;
-            leftMove = false;
+//            rightMove = true;
+//            leftMove = false;
             handleMoveRight(dt);
         }
 
@@ -181,14 +190,28 @@ public class Perry {
 
     public void chooseLeftMoveState()
     {
-        if (currentState != State.RUNNING_LEFT) {
-//             System.out.println("Setting state to running left and resetting active animation.");
+
+//        System.out.println("Starting method choose left move state");
+
+
+        // if the current state is idle set state to start running right
+        if ((rightMove) || (currentState == State.IDLE_LEFT) ){
+            activeAnimation.reset();
+            velocity.x = 0;
+            changeState(State.START_RUN_LEFT);
+            canMove = true;
+//            System.out.println("State changed from idle or moving left to start run left");
+            leftMove = true;
+            rightMove = false;
+        }
+
+
+
+        //if the current state is start running right and the animation is complete, set the state to running right
+        if ((currentState == State.START_RUN_LEFT) && activeAnimation.isComplete()){
             changeState(State.RUNNING_LEFT);
             canMove = true;
-            activeAnimation.reset();
-//            motionTimer = 0;
-//            idleTimer = 0;
-            }
+        }
 
 
     }
@@ -201,6 +224,7 @@ public class Perry {
         // if the current state is idle set state to start running right
         if ((leftMove) || (currentState == State.IDLE) ){
             activeAnimation.reset();
+            velocity.x = 0;
             changeState(State.START_RUN_RIGHT);
             canMove = true;
             System.out.print("State changed from idle or moving left to start run right");
@@ -238,18 +262,78 @@ public class Perry {
 
     public void handleRoll(float dt){
 
-        System.out.println("handlin' rollin'");
+//        System.out.println("handlin' rollin'");
 
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // IF the rolling left animation is complete
+        if ((currentState == State.ROLLING_LEFT) && (activeAnimation.isComplete())){
 
-        if ((currentState == State.ROLLING_RIGHT) && (activeAnimation.isComplete())){
-            changeState(State.RUNNING_RIGHT);
+            //either way, set canMove to true
             canMove = true;
+
+            //and user is still pressing left, transition to running left
+            if ((leftMove)) {
+                changeState(State.RUNNING_LEFT);
+                return;
+            }
+
+            //if the user is pressing right, transition to start run right
+            if ((rightMove)) {
+                changeState(State.START_RUN_RIGHT);
+            }
+
+
+
+        }///////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // IF the rolling right animation is complete
+        if ((currentState == State.ROLLING_RIGHT) && (activeAnimation.isComplete())){
+
+            //either way, set canMove to true
+            canMove = true;
+
+            //and user is still pressing left, transition to running right
+            if (rightMove){
+            changeState(State.RUNNING_RIGHT);
+            return;}
+
+            //if the user is pressing left, transition to start run left
+            if (leftMove) {
+                changeState(State.START_RUN_LEFT);
+            }
+
+
+        }///////////////////////////////////////////////////////////////////////////////////////////
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        // ELSE IF THE ANIMATION IS NOT COMPLETE
+
+        //HANDLE ACTIVELY ROLLING LEFT
+
+        if (currentState == State.ROLLING_LEFT) {
+            newVelocityX = Math.min((-2 * maxRunSpeed) * (1f - activeAnimation.animationPercentComplete()), -3f);
+
+            float xPosIncrement = newVelocityX * dt;
+
+            float potentialX = position.x + xPosIncrement;
+
+            if (!currentLevel.isTileCollidable(potentialX, position.y)) {
+                velocity.x = newVelocityX;
+            } else {
+
+                velocity.x = 0;
+
+                float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
+                position.x = tileBoundary + TILE_SIZE; // -1 for a small buffer
+            }
         }
 
-        System.out.println("current x velocity: " + velocity.x);
+        //HANDLE ACTIVELY ROLLING RIGHT
 
-        System.out.println("animation completion: " + activeAnimation.animationPercentComplete());
-
+        if (currentState == State.ROLLING_RIGHT){
         newVelocityX = Math.max((2*maxRunSpeed) * (1f - activeAnimation.animationPercentComplete()), 3f);
 
         float xPosIncrement = newVelocityX * dt;
@@ -263,9 +347,9 @@ public class Perry {
             velocity.x = 0;
 
             float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
-            position.x = tileBoundary - bounds.getWidth() ; // -1 for a small buffer
+            position.x = tileBoundary - bounds.getWidth(); // -1 for a small buffer
 
-
+        }
 
         }
 
@@ -274,64 +358,118 @@ public class Perry {
 
     public void handleJumpBack(float dt){
 
-        System.out.println("handlin' jump back'");
+//        System.out.println("handlin' jump back'");
 
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        //CHECK IF JUMP BACK ANIMATION IS COMPLETE AND IF SO RESET TO IDLE
 
+        //CHECK LEFT
+        if ((currentState == State.JUMP_BACK_LEFT) && (activeAnimation.isComplete())){
+            changeState(State.IDLE_LEFT);
+            canMove = true;
+        }
+
+        //CHECK RIGHT
         if ((currentState == State.JUMP_BACK_RIGHT) && (activeAnimation.isComplete())){
             changeState(State.IDLE);
             canMove = true;
         }
 
-        System.out.println("current x velocity: " + velocity.x);
-
-        System.out.println("animation completion: " + activeAnimation.animationPercentComplete());
+        //IF THE ANIMATION IS LESS THAN 25 OR GREATER THAN 80 PERCENT COMPLETE, DON'T MOVE
 
         if ( activeAnimation.animationPercentComplete() < 0.25f || activeAnimation.animationPercentComplete() > 0.8f){
             velocity.x = 0;
             return;
         }
 
-        newVelocityX = Math.min((-2*maxRunSpeed) * (1f - activeAnimation.animationPercentComplete()), -3f);
+        //ELSE IF THE ANIMATION IS BETWEEN 25 and 80 PERCENT COMPLETE, HANDLE VELOCITY AND POSITION
 
-        float xPosIncrement = newVelocityX * dt;
+        //FOR LEFT
 
-        float potentialX = position.x + xPosIncrement;
+        if (currentState == State.JUMP_BACK_LEFT) {
 
-        if (!currentLevel.isTileCollidable(potentialX, position.y)) {
-            velocity.x = newVelocityX;
-        } else {
 
-            velocity.x = 0;
+            newVelocityX = Math.max((2 * maxRunSpeed) * (1f - activeAnimation.animationPercentComplete()), 3f);
 
-            float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
-            position.x = tileBoundary + TILE_SIZE ; // -1 for a small buffer
+            float xPosIncrement = newVelocityX * dt;
 
+            float potentialX = position.x + xPosIncrement + bounds.width;
+
+            if (!currentLevel.isTileCollidable(potentialX, position.y)) {
+                velocity.x = newVelocityX;
+            } else {
+
+                velocity.x = 0;
+
+                float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
+                position.x = tileBoundary - bounds.width; // -1 for a small buffer
+
+            }
         }
 
-    }
+        //FOR RIGHT
 
-    public void setRoll(){
+        if (currentState == State.JUMP_BACK_RIGHT) {
 
-        System.out.println("setting roll'");
 
-        if (currentState!= State.ROLLING_RIGHT) {
+            newVelocityX = Math.min((-2 * maxRunSpeed) * (1f - activeAnimation.animationPercentComplete()), -3f);
 
-            if (this.rightMove) {
+            float xPosIncrement = newVelocityX * dt;
 
-                changeState(State.ROLLING_RIGHT);
-                canMove = false;
+            float potentialX = position.x + xPosIncrement;
 
+            if (!currentLevel.isTileCollidable(potentialX, position.y)) {
+                velocity.x = newVelocityX;
+            } else {
+
+                velocity.x = 0;
+
+                float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
+                position.x = tileBoundary + TILE_SIZE; // -1 for a small buffer
 
             }
         }
 
     }
 
+    public void setRoll(){
+
+//        System.out.println("setting roll'");
+
+        if ((currentState!= State.ROLLING_RIGHT) && (currentState != State.ROLLING_LEFT)) {
+
+            if (this.leftMove) {
+
+                changeState(State.ROLLING_LEFT);
+                canMove = false;
+
+            }
+
+            if (this.rightMove) {
+
+                changeState(State.ROLLING_RIGHT);
+                canMove = false;
+
+            }
+        }
+
+
+
+
+    }
+
     public void setJumpBack(){
 
-        System.out.println("jumping back!");
+//        System.out.println("jumping back!");
 
-        if (currentState != State.JUMP_BACK_RIGHT){
+        if ((currentState != State.JUMP_BACK_RIGHT) && (currentState != State.JUMP_BACK_LEFT)){
+
+            if (this.leftMove) {
+
+                changeState(State.JUMP_BACK_LEFT);
+                canMove = false;
+
+            }
 
             if (this.rightMove) {
 
@@ -345,10 +483,17 @@ public class Perry {
 
     public void handleQuickAttack(){
 
-        System.out.println("Starting Quick Attack!");
+//        System.out.println("Starting Quick Attack!");
 
 
-        if (currentState != State.QUICK_ATTACK_RIGHT) {
+        if ((currentState != State.QUICK_ATTACK_RIGHT) && (currentState != State.QUICK_ATTACK_LEFT)) {
+
+            if (this.leftMove) {
+
+                changeState(State.QUICK_ATTACK_LEFT);
+                canMove = false;
+                velocity.x = 0;
+            }
 
             if (this.rightMove) {
 
@@ -358,9 +503,15 @@ public class Perry {
             }
         }
 
-        if ((currentState == State.QUICK_ATTACK_RIGHT) && (activeAnimation.isComplete())) {
+        if ((activeAnimation.isComplete())) {
 
-            changeState(State.IDLE);
+            if (currentState == State.QUICK_ATTACK_LEFT){
+                changeState(State.IDLE_LEFT);
+            }
+
+            if (currentState == State.QUICK_ATTACK_RIGHT){
+            changeState(State.IDLE);}
+
             canMove = true;
 
 
@@ -396,7 +547,37 @@ public class Perry {
     public void handleMoveLeft(float dt){
 
 
-        velocity.x = Math.min((velocity.x * 1.05f) - 1.5f * dt, -maxRunSpeed); // Gradual speed build up to -4
+        chooseLeftMoveState();
+
+        newVelocityX = Math.max((velocity.x * 1.5f) - 1.5f * dt , -maxRunSpeed); // Desired velocity increment
+
+        float xPosIncrement = newVelocityX * dt;
+
+
+        //check that future position plus with width of Perry is not a collidable tile
+        float potentialX = position.x + xPosIncrement;
+
+
+        // Check for collision at Perry's front side
+        if (!currentLevel.isTileCollidable(potentialX, position.y)) {
+            velocity.x = newVelocityX;
+        } else {
+
+
+            // Adjust Perry's position to avoid penetrating the collidable tile
+            velocity.x = 0;
+
+
+            float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
+            position.x = tileBoundary + TILE_SIZE ; // -1 for a small buffer
+
+            activeAnimation.reset();
+            System.out.println("State changed to Cling Left!");
+            changeState(State.CLING_LEFT);
+            canMove = false;
+
+
+        }
 
     }
 
@@ -408,31 +589,16 @@ public class Perry {
 
         float xPosIncrement = newVelocityX * dt;
 
-//        System.out.println("newVelocityX: " + newVelocityX);
 
         //check that future position plus with width of Perry is not a collidable tile
         float potentialX = position.x + bounds.width;
 
-//        System.out.println("delta time: " + dt);
-//
-//        System.out.println("xPosition increment: " + xPosIncrement);
-//
-//        System.out.println("potential X: " + potentialX);
 
         // Check for collision at Perry's front side
         if (!currentLevel.isTileCollidable(potentialX, position.y)) {
             velocity.x = newVelocityX;
         } else {
 
-//            System.out.println("State changed from moving right to cling right");
-//
-//            System.out.println("Perry current X pos: " + position.x + "Perry current Y pos: " + position.y);
-//
-//            System.out.println("current bounds width: " + bounds.getWidth());
-//
-//            System.out.println("Perry position + width: " + position.x + bounds.getWidth());
-//
-//            System.out.println("Position plus width collidable?: " + currentLevel.isTileCollidable(position.x + bounds.width, position.y));
 
             // Adjust Perry's position to avoid penetrating the collidable tile
             velocity.x = 0;
@@ -453,6 +619,16 @@ public class Perry {
     public void handleIdle(float dt){
 
 //        System.out.println("Handlin; idlin'");
+
+        if (currentState == State.CLING_LEFT){
+            activeAnimation.reset();
+            changeState(State.IDLE_LEFT);
+            canMove = true;
+            //handleIdle(dt);
+            System.out.println("State changed from cling left to idle left");
+            bounds = new Rectangle(position.x, position.y, animationManager.getIdleWidth(), animationManager.getIdleHeight());
+
+        }
 
 
         if (currentState == State.CLING_RIGHT){
@@ -480,8 +656,12 @@ public class Perry {
 
         }
 
-            if (currentState != State.IDLE) {
-                changeState(State.IDLE);
+            if ((currentState != State.IDLE) && (currentState != State.IDLE_LEFT)) {
+
+                if (leftMove){
+                    changeState(State.IDLE_LEFT);
+                } else{
+                changeState(State.IDLE);}
                 canMove = true;
             }
 
