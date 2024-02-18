@@ -16,6 +16,7 @@ public class PerryAnimationMGMT {
     private Animation perryStartRunRight;
     private Animation perryRunRight;
     private Animation perryRollRight;
+    private Animation perryJumpBackRight;
     private Animation perryClingRight;
     private Animation perryQuickAttackRight;
 
@@ -23,20 +24,22 @@ public class PerryAnimationMGMT {
 
     private float idleWidth;
     private float idleHeight;
+    private float jumpBackWidth;
+    private float jumpBackHeight;
 
 
     private int idleFrameCount;
     private float idleCycleTime;
+    private int jumpBackFrameCount;
+    private float jumpBackCycleTime;
 
 
-    private float runStartDelay;
     public float startToRunWidth;
     public float startToRunHeight;
     private int startToRunFrameCount;
     private float startToRunCycleTime;
 
 
-    private float timeToRunCycle;
     private float runWidth;
     private float runHeight;
     private int runFrameCount;
@@ -57,8 +60,6 @@ public class PerryAnimationMGMT {
     private int quickAttackFrameCount;
     private float quickAttackCycleTime;
 
-
-    private Rectangle bounds;
 
 
     private int gravity = -15;
@@ -107,6 +108,23 @@ public class PerryAnimationMGMT {
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                J U M P   B A C K                                     ///
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        jumpBackFrameCount = 13;
+        jumpBackCycleTime = 0.8f;
+        boolean jumpBackIsCycle = false;
+
+
+        Texture textureJumpBack = new Texture("PerryJumpBackRight.png");
+        perryJumpBackRight = new Animation(new TextureRegion(textureJumpBack), jumpBackFrameCount, jumpBackCycleTime, jumpBackIsCycle);
+
+        jumpBackWidth = textureJumpBack.getWidth() /((float) jumpBackFrameCount);
+        jumpBackHeight = textureJumpBack.getHeight();
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
         ///                             S T A R T   R U N N I N G                                ///
         ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -131,8 +149,6 @@ public class PerryAnimationMGMT {
 
         runFrameCount = 12;
         runCycleTime = 1f;
-        runStartDelay = 0.3f;
-        timeToRunCycle = 0.4f;
 
         boolean runIsCycle = true;
 
@@ -271,6 +287,11 @@ public class PerryAnimationMGMT {
                 this.animationWidth = rollWidth;
                 this.animationHeight = rollHeight;
                 return perryRollRight;
+            case JUMP_BACK_RIGHT:
+                System.out.println("Returning JUMP_BACK_RIGHT animation");
+                this.animationWidth = jumpBackWidth;
+                this.animationHeight = jumpBackHeight;
+                return perryJumpBackRight;
             case QUICK_ATTACK_RIGHT:
                 System.out.println("Returning QUICK_ATTACK_RIGHT animation");
                 this.animationWidth = quickAttackWidth;

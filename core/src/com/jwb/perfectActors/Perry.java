@@ -66,6 +66,7 @@ public class Perry {
         RUNNING_RIGHT,
         CLING_RIGHT,
         ROLLING_RIGHT,
+        JUMP_BACK_RIGHT,
         QUICK_ATTACK_RIGHT
     }
     public Perry(int x, int y, TiledGameMap currentLevel){
@@ -89,6 +90,8 @@ public class Perry {
         rightRoll = false;
 
         canMove = true;
+
+        this.rightMove = true;
 
     }
 
@@ -117,6 +120,10 @@ public class Perry {
 
             if (currentState == State.QUICK_ATTACK_RIGHT){
                 handleQuickAttack();
+            }
+
+            if (currentState == State.JUMP_BACK_RIGHT){
+                handleJumpBack(dt);
             }
         }
 
@@ -265,6 +272,44 @@ public class Perry {
 
     }
 
+    public void handleJumpBack(float dt){
+
+        System.out.println("handlin' jump back'");
+
+
+        if ((currentState == State.JUMP_BACK_RIGHT) && (activeAnimation.isComplete())){
+            changeState(State.IDLE);
+            canMove = true;
+        }
+
+        System.out.println("current x velocity: " + velocity.x);
+
+        System.out.println("animation completion: " + activeAnimation.animationPercentComplete());
+
+        if ( activeAnimation.animationPercentComplete() < 0.25f || activeAnimation.animationPercentComplete() > 0.8f){
+            velocity.x = 0;
+            return;
+        }
+
+        newVelocityX = Math.min((-2*maxRunSpeed) * (1f - activeAnimation.animationPercentComplete()), -3f);
+
+        float xPosIncrement = newVelocityX * dt;
+
+        float potentialX = position.x + xPosIncrement;
+
+        if (!currentLevel.isTileCollidable(potentialX, position.y)) {
+            velocity.x = newVelocityX;
+        } else {
+
+            velocity.x = 0;
+
+            float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
+            position.x = tileBoundary + TILE_SIZE ; // -1 for a small buffer
+
+        }
+
+    }
+
     public void setRoll(){
 
         System.out.println("setting roll'");
@@ -276,6 +321,22 @@ public class Perry {
                 changeState(State.ROLLING_RIGHT);
                 canMove = false;
 
+
+            }
+        }
+
+    }
+
+    public void setJumpBack(){
+
+        System.out.println("jumping back!");
+
+        if (currentState != State.JUMP_BACK_RIGHT){
+
+            if (this.rightMove) {
+
+                changeState(State.JUMP_BACK_RIGHT);
+                canMove = false;
 
             }
         }
