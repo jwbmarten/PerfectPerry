@@ -129,7 +129,7 @@ public class PerryAnimationMGMT {
         ///                                   R U N N I N G                                      ///
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        runFrameCount = 8;
+        runFrameCount = 12;
         runCycleTime = 1f;
         runStartDelay = 0.3f;
         timeToRunCycle = 0.4f;

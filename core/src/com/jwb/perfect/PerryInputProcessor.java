@@ -63,7 +63,9 @@ public class PerryInputProcessor implements InputProcessor {
                 break;
             //case if space is pressed
             case Keys.SPACE:
-                perry.setRoll();
+
+                if (perry.getCanMove()){
+                perry.setRoll();}
                 getCameraPosition = true;
                 break;
             //case if L is pressed

@@ -112,7 +112,7 @@ public class Perry {
 
             //if the user is rolling, call the handle roll method
             if (currentState == State.ROLLING_RIGHT) {
-                handleRoll();
+                handleRoll(dt);
             }
 
             if (currentState == State.QUICK_ATTACK_RIGHT){
@@ -133,6 +133,8 @@ public class Perry {
 
         if (rightPressed && canMove) {
 
+            rightMove = true;
+            leftMove = false;
             handleMoveRight(dt);
         }
 
@@ -154,7 +156,7 @@ public class Perry {
 
             } else {
 
-                System.out.println("Neither Left nor right pressed");
+                System.out.println("Neither Left nor right pressed, slowing down");
                 velocity.x *= 0.2f; // Apply a simple friction factor
             }
         }
@@ -184,7 +186,7 @@ public class Perry {
 
     }
 
-    public void chooseRightMoveState(float dt) {
+    public void chooseRightMoveState() {
 
 
 
@@ -219,21 +221,21 @@ public class Perry {
         }
     }
 
-    public void perryCantStop(){
+    public void perryCantStop(float dt){
 
         if (currentState == State.ROLLING_RIGHT){
 
-            handleRoll();
+            handleRoll(dt);
         }
     }
 
-    public void handleRoll(){
+    public void handleRoll(float dt){
 
         System.out.println("handlin' rollin'");
 
 
         if ((currentState == State.ROLLING_RIGHT) && (activeAnimation.isComplete())){
-            changeState(State.IDLE);
+            changeState(State.RUNNING_RIGHT);
             canMove = true;
         }
 
@@ -241,7 +243,26 @@ public class Perry {
 
         System.out.println("animation completion: " + activeAnimation.animationPercentComplete());
 
-        newVelocityX = Math.max(maxRunSpeed * (2f - activeAnimation.animationPercentComplete()), 5);
+        newVelocityX = Math.max((2*maxRunSpeed) * (1f - activeAnimation.animationPercentComplete()), 3f);
+
+        float xPosIncrement = newVelocityX * dt;
+
+        float potentialX = position.x + bounds.width;
+
+        if (!currentLevel.isTileCollidable(potentialX, position.y)) {
+            velocity.x = newVelocityX;
+        } else {
+
+            velocity.x = 0;
+
+            float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
+            position.x = tileBoundary - bounds.getWidth() ; // -1 for a small buffer
+
+
+
+        }
+
+
     }
 
     public void setRoll(){
@@ -320,37 +341,37 @@ public class Perry {
 
     public void handleMoveRight(float dt) {
 
-        chooseRightMoveState(dt);
+        chooseRightMoveState();
 
         newVelocityX = Math.min((velocity.x * 1.5f) + 1.5f * dt , maxRunSpeed); // Desired velocity increment
 
         float xPosIncrement = newVelocityX * dt;
 
-        System.out.println("newVelocityX: " + newVelocityX);
+//        System.out.println("newVelocityX: " + newVelocityX);
 
         //check that future position plus with width of Perry is not a collidable tile
         float potentialX = position.x + bounds.width;
 
-        System.out.println("delta time: " + dt);
-
-        System.out.println("xPosition increment: " + xPosIncrement);
-
-        System.out.println("potential X: " + potentialX);
+//        System.out.println("delta time: " + dt);
+//
+//        System.out.println("xPosition increment: " + xPosIncrement);
+//
+//        System.out.println("potential X: " + potentialX);
 
         // Check for collision at Perry's front side
         if (!currentLevel.isTileCollidable(potentialX, position.y)) {
             velocity.x = newVelocityX;
         } else {
 
-            System.out.println("State changed from moving right to cling right");
-
-            System.out.println("Perry current X pos: " + position.x + "Perry current Y pos: " + position.y);
-
-            System.out.println("current bounds width: " + bounds.getWidth());
-
-            System.out.println("Perry position + width: " + position.x + bounds.getWidth());
-
-            System.out.println("Position plus width collidable?: " + currentLevel.isTileCollidable(position.x + bounds.width, position.y));
+//            System.out.println("State changed from moving right to cling right");
+//
+//            System.out.println("Perry current X pos: " + position.x + "Perry current Y pos: " + position.y);
+//
+//            System.out.println("current bounds width: " + bounds.getWidth());
+//
+//            System.out.println("Perry position + width: " + position.x + bounds.getWidth());
+//
+//            System.out.println("Position plus width collidable?: " + currentLevel.isTileCollidable(position.x + bounds.width, position.y));
 
             // Adjust Perry's position to avoid penetrating the collidable tile
             velocity.x = 0;
@@ -362,9 +383,6 @@ public class Perry {
             activeAnimation.reset();
             changeState(State.CLING_RIGHT);
             canMove = false;
-
-
-
 
 
         }
@@ -449,6 +467,8 @@ public class Perry {
     public void setCanMove(boolean canMove) {
         this.canMove = canMove;
     }
+
+    public boolean getCanMove(){ return this.canMove; }
 
     public Rectangle getBounds() {return bounds;}
 

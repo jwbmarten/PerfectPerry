@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.jwb.perfect.PerryInputProcessor;
 import com.jwb.perfectActors.Perry;
+import com.jwb.perfectActors.YellowFellow;
 import com.jwb.perfectWorld.GameMap;
 import com.jwb.perfectWorld.TiledGameMap;
 
@@ -20,8 +21,12 @@ public class PlayState extends State {
     private ExtendViewport viewport;
 
     private PerryInputProcessor inputProcessor;
+
     //define Perry object
     private Perry perry;
+
+    //define yellow fellow for testing
+    private YellowFellow yellowFellow;
 
 
     private Texture demolvl;
@@ -49,6 +54,11 @@ public class PlayState extends State {
 
         //initialize Perry
         perry = new Perry(1000, 800, gameMap);
+
+        //initialize Yellow fellow
+        yellowFellow = new YellowFellow( 1600, 800, gameMap);
+
+
 
         cam = new OrthographicCamera();
         //cam.setToOrtho(false, 970,546 );
@@ -120,6 +130,9 @@ public class PlayState extends State {
         cam.update();
 
         perry.update(dt, inputProcessor.isLeftPressed(), inputProcessor.isRightPressed());
+
+        yellowFellow.update(dt);
+
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
         if (inputProcessor.isGetCameraPosition()){
@@ -146,6 +159,8 @@ public class PlayState extends State {
 
         //draw Perry
         sb.draw(perry.getTexture(), perry.getPosition().x, perry.getPosition().y);
+
+        sb.draw(yellowFellow.getTexture(), yellowFellow.getPosition().x, yellowFellow.getPosition().y);
 
         sb.end();
 
