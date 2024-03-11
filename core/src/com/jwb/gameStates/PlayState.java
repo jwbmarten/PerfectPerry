@@ -1,9 +1,11 @@
 package com.jwb.gameStates;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
@@ -37,7 +39,9 @@ public class PlayState extends State {
 
     private Vector3 targetPosition = new Vector3();
 
-    private float lerpFactor = 0.1f; // Adjust this value to control the speed of the camera interpolation
+    private float lerpFactor = 0.5f; // Adjust this value to control the speed of the camera interpolation
+
+    private ShapeRenderer shapeRenderer;
 
 
 
@@ -58,7 +62,7 @@ public class PlayState extends State {
         //initialize Yellow fellow
         yellowFellow = new YellowFellow( 1600, 800, gameMap);
 
-
+        shapeRenderer = new ShapeRenderer();
 
         cam = new OrthographicCamera();
         //cam.setToOrtho(false, 970,546 );
@@ -66,9 +70,11 @@ public class PlayState extends State {
         ///////////////////////////////////////////////////////////
         //// SET ZOOM LEVEL WITHIN WORLD
 
+        // 16:9 aspect ratio
+        viewport = new ExtendViewport(1600, 900, cam); // Initialize ExtendViewport with desired world width and height
 
         // 16:9 aspect ratio
-        viewport = new ExtendViewport(1920, 1080, cam); // Initialize ExtendViewport with desired world width and height
+//        viewport = new ExtendViewport(1920, 1080, cam); // Initialize ExtendViewport with desired world width and height
 
         // 16:9 aspect ratio
 //        viewport = new ExtendViewport(2400, 1350, cam); // Initialize ExtendViewport with desired world width and height
@@ -80,20 +86,8 @@ public class PlayState extends State {
         inputProcessor = new PerryInputProcessor(perry);
         Gdx.input.setInputProcessor(inputProcessor);
 
-
-
     }
 
-    public boolean checkPerryDirection(String direction){
-
-        if (direction.toLowerCase() == "left"){
-            return inputProcessor.isLeftPressed();
-        } else if (direction.toLowerCase() == "right") {
-            return inputProcessor.isRightPressed();
-        }
-
-        return false;
-    }
 
     @Override
     protected void handleInput() {
@@ -119,7 +113,7 @@ public class PlayState extends State {
         Vector3 perryPosition = new Vector3(perry.getPosition().x, perry.getPosition().y, 0);
 
         // Set the target position for the camera, offset if desired
-        targetPosition.set(perryPosition.x + 96, perryPosition.y + 220, 0);
+        targetPosition.set(perryPosition.x + 96, perryPosition.y + 400, 0);
 
         // Interpolate the camera's position towards the target position
         cam.position.lerp(targetPosition, lerpFactor);
@@ -130,6 +124,13 @@ public class PlayState extends State {
         cam.update();
 
         perry.update(dt, inputProcessor.returnHandledInputs()[0], inputProcessor.returnHandledInputs()[1]);
+
+        if (perry.getIsAttacking()){
+            if(yellowFellow.checkIfHit(perry.getAtkHitboxBounds(), perry.getAtkHitbox())){
+                System.out.println("Yellow Fellow HIT!");
+                yellowFellow.takeDamage();
+            }
+        }
 
         yellowFellow.update(dt);
 
@@ -162,7 +163,25 @@ public class PlayState extends State {
 
         sb.draw(yellowFellow.getTexture(), yellowFellow.getPosition().x, yellowFellow.getPosition().y);
 
+
         sb.end();
+
+
+        shapeRenderer.setProjectionMatrix(cam.combined);
+
+        // Begin ShapeRenderer in Line mode to draw outlines
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.RED); // Set the color of the polygon lines
+
+        // Draw the polygon
+        // Assuming polygon is a Polygon object you've created elsewhere
+        if (perry.atkHitbox != null){
+        shapeRenderer.polygon(perry.atkHitbox.getTransformedVertices());}
+
+        shapeRenderer.polygon(yellowFellow.getYelFelBodyVerts());
+
+        // End ShapeRenderer
+        shapeRenderer.end();
 
     }
 
@@ -177,5 +196,6 @@ public class PlayState extends State {
     public void resize(int width, int height) {
         viewport.update(width, height); // Ensure viewport updates on resize
     }
+
 
 }

@@ -19,7 +19,7 @@ public class TiledGameMap extends GameMap {
     OrthogonalTiledMapRenderer tiledMapRenderer;
 
     public TiledGameMap() {
-        tiledMap = new TmxMapLoader().load("DemoShopV1.tmx");
+        tiledMap = new TmxMapLoader().load("CastleWorking.tmx");
 
 //        // Apply nearest filter to all tiles
 //        for (TiledMapTileSet tileset : tiledMap.getTileSets()) {

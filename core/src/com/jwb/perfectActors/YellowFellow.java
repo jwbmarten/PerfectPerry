@@ -2,10 +2,15 @@ package com.jwb.perfectActors;
 
 import static com.jwb.perfectWorld.TileType.TILE_SIZE;
 
+import com.badlogic.gdx.math.Polygon;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.jwb.perfectWorld.TiledGameMap;
 
 public class YellowFellow extends PerfectEnemy {
+
+    float[] yelFelBodyVerts;
+
 
     public YellowFellow(int x, int y, TiledGameMap currentLevel) {
 
@@ -22,7 +27,9 @@ public class YellowFellow extends PerfectEnemy {
         this.animationManager = new YellowFellowMGMT();
         this.activeAnimation = animationManager.getAnimation(EnemyStates.IDLE_ONE_LEFT);
 
-        ;
+        this.enemyHitboxBounds = new Rectangle(position.x + 51, position.y, 232, 232);
+        this.yelFelBodyVerts = new float[]{(position.x + 51), (position.y), (position.x + 283), (position.y), (position.x + 283), (position.y + 233), (position.x + 51), (position.y + 233)};
+        this.enemyHitbox = new Polygon(this.yelFelBodyVerts)        ;
     }
 
     @Override
@@ -47,12 +54,33 @@ public class YellowFellow extends PerfectEnemy {
             handleGravity(dt);
         }
 
+
+
         activeAnimation.update(dt);
+
 
         position.add(velocity.x, velocity.y, 0);
 
+        enemyHitboxBounds.setPosition(position.x + 51, position.y);
+
+        this.yelFelBodyVerts = new float[]{(position.x + 51), (position.y), (position.x + 283), (position.y), (position.x + 283), (position.y + 233), (position.x + 51), (position.y + 233)};
+        this.enemyHitbox = new Polygon(this.yelFelBodyVerts)        ;
+
+
     }
 
+    public Polygon getYelFelPoly(){
+        return this.enemyHitbox;
+    }
+
+    public float[] getYelFelBodyVerts() {
+        return yelFelBodyVerts;
+    }
+
+    @Override
+    public void takeDamage(){
+        velocity.y = 10;
+    }
 
     @Override
     void handleIdle(float dt) {

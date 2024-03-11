@@ -39,7 +39,7 @@ public class YellowFellowMGMT extends EnemyAnimationMGMT {
         boolean idleIsCycle = true;
 
         Texture textureIdle = new Texture("YellowFellowIDLE.png");
-        idleOneLeft = new Animation(new TextureRegion(textureIdle), idleFrameCount, idleCycleTime, idleIsCycle);
+        idleOneLeft = new Animation(new TextureRegion(textureIdle), idleFrameCount, idleCycleTime, idleIsCycle, "YelFel Idle Left");
 
 
         idleWidth = textureIdle.getWidth() /((float) idleFrameCount);

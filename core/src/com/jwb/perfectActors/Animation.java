@@ -13,13 +13,14 @@ public class Animation {
     float currentFrameTime;
     int frameCount;
     int frame;
+    String name;
 
     boolean isCycle;
 
     Rectangle bounds;
 
 
-    public Animation(TextureRegion region, int frameCount, float cycleTime, boolean isCycle){
+    public Animation(TextureRegion region, int frameCount, float cycleTime, boolean isCycle, String name){
         frames = new Array<TextureRegion>();
         TextureRegion temp;
         int frameWidth = region.getRegionWidth() / frameCount;
@@ -31,11 +32,9 @@ public class Animation {
         maxFrameTime = cycleTime / frameCount;
         frame = 0;
         this.isCycle = isCycle;
+        this.name = name;
 
     }
-
-
-
 
 
     public void update(float dt) {
@@ -46,7 +45,9 @@ public class Animation {
                 if (frame >= frameCount) {
                     if (isCycle) {
                         frame = 0; // Loop to start since it should be a cycle animation
-                    } else {
+                    }
+
+                    else {
                         frame = frameCount -1; // keep the frame at the last frame for non cycle animations
                     }
                 }
@@ -55,7 +56,9 @@ public class Animation {
             if (frame >= frameCount) {
                 if (isCycle) {
                     frame = 0; // Loop to the start for cycling animations
-                } else {
+                }
+
+                else {
                     frame = frameCount - 1; // Stay on the last frame for non-cycling animations
                 }
             }
@@ -88,9 +91,14 @@ public class Animation {
 
         return  this.frames.get(0).getRegionHeight(); }
 
+    public int getCurrFrameNum(){
+
+        return this.frame;
+    }
+
 
     public boolean isComplete() {
-        return frame == frameCount -1 ;
+        return frame == frameCount - 2 ;
     }
 
     public float animationPercentComplete() {

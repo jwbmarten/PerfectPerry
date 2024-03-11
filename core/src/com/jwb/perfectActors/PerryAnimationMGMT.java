@@ -2,9 +2,101 @@ package com.jwb.perfectActors;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
+
+import java.util.ArrayList;
 
 public class PerryAnimationMGMT {
+
+    static class attackBoxes{
+
+        Rectangle boundingBox;
+        Polygon hitPoly;
+
+        public attackBoxes(Rectangle boundingBox, Polygon hitPoly){
+            this.boundingBox = boundingBox;
+            this.hitPoly = hitPoly;
+        }
+
+        public Polygon getHitPoly() {
+            return hitPoly;
+        }
+
+        public Rectangle getBoundingBox() {
+            return boundingBox;
+        }
+    }
+
+    static class atkBounds{
+
+        int xOffset;
+        int yOffset;
+        int width;
+        int height;
+
+        public atkBounds(int xOffset, int yOffset, int width, int height){
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+            this.width = width;
+            this.height = height;
+        }
+    }
+
+    static class animationVertices{
+
+        ArrayList<frameVertices> frameVerticesList = new ArrayList<>();
+
+        public void addFrameVertices(frameVertices frameVertices){
+            this.frameVerticesList.add(frameVertices);
+        }
+
+        public frameVertices getFrameVerts(int frame){
+
+            return this.frameVerticesList.get(frame);
+        }
+    }
+
+    static class frameVertices{
+
+        int frameNum;
+        atkBounds attackBounds;
+        int frameWidth;
+
+        ArrayList<hitboxVertices> hitboxVerticesList = new ArrayList<>();
+
+
+        frameVertices(int frameNum){
+            this.frameNum = frameNum;
+        }
+
+        public void addVertices(int xCoord, int yCoord){
+            this.hitboxVerticesList.add(new hitboxVertices(xCoord, yCoord));
+        }
+
+        public int getFrameVertSize(){ return this.hitboxVerticesList.size();}
+
+        public void setBoundsInfo(atkBounds atkBounds){
+
+            this.attackBounds = atkBounds;
+        }
+
+    }
+
+
+    static class hitboxVertices {
+        int xCoordinate;
+        int yCoordinate;
+
+
+        hitboxVertices(int xCoordinate, int yCoordinate) {
+            this.xCoordinate = xCoordinate;
+            this.yCoordinate = yCoordinate;
+        }
+
+        hitboxVertices(int frameNum) {}
+    }
 
     Perry perry;
 
@@ -24,8 +116,10 @@ public class PerryAnimationMGMT {
     private Animation perryJumpBackLEFT;
     private Animation perryClingRight;
     private Animation perryClingLEFT;
+
     private Animation perryQuickAttackRight;
     private Animation perryQuickAttackLEFT;
+    animationVertices quickAttackVertices = new animationVertices();
 
 
 
@@ -101,14 +195,14 @@ public class PerryAnimationMGMT {
         ///                                 I D L E   L E F T                                    ///
 
         Texture textureIdleLEFT = new Texture("PerryIdleLEFT.png");
-        perryIdleLEFT = new Animation(new TextureRegion(textureIdleLEFT), idleFrameCount, idleCycleTime, idleIsCycle);
+        perryIdleLEFT = new Animation(new TextureRegion(textureIdleLEFT), idleFrameCount, idleCycleTime, idleIsCycle, "Idle Left");
 
 
 
         ///                               I D L E   R I G H T                                    ///
 
         Texture textureIdle = new Texture("PerryInactive80ms.png");
-        perryIdle = new Animation(new TextureRegion(textureIdle), idleFrameCount, idleCycleTime, idleIsCycle);
+        perryIdle = new Animation(new TextureRegion(textureIdle), idleFrameCount, idleCycleTime, idleIsCycle, "Idle Right");
 
         idleWidth = textureIdle.getWidth() /((float) idleFrameCount);
         idleHeight = textureIdle.getHeight();
@@ -132,13 +226,13 @@ public class PerryAnimationMGMT {
         ///                            J U M P   B A C K   L E F T                               ///
 
         Texture textureJumpBackLEFT = new Texture("PerryJumpBackLEFT.png");
-        perryJumpBackLEFT = new Animation(new TextureRegion(textureJumpBackLEFT), jumpBackFrameCount, jumpBackCycleTime, jumpBackIsCycle);
+        perryJumpBackLEFT = new Animation(new TextureRegion(textureJumpBackLEFT), jumpBackFrameCount, jumpBackCycleTime, jumpBackIsCycle, "Jump Back Left");
 
         ///                           J U M P   B A C K   R I G H T                              ///
 
 
         Texture textureJumpBack = new Texture("PerryJumpBackRight.png");
-        perryJumpBackRight = new Animation(new TextureRegion(textureJumpBack), jumpBackFrameCount, jumpBackCycleTime, jumpBackIsCycle);
+        perryJumpBackRight = new Animation(new TextureRegion(textureJumpBack), jumpBackFrameCount, jumpBackCycleTime, jumpBackIsCycle, "Jump Back Right");
 
         jumpBackWidth = textureJumpBack.getWidth() /((float) jumpBackFrameCount);
         jumpBackHeight = textureJumpBack.getHeight();
@@ -157,14 +251,14 @@ public class PerryAnimationMGMT {
         ///                         S T A R T     R U N    L E F T                               ///
 
         Texture textureStartRunLEFT = new Texture("PerryIdletoRunLEFT.png");
-        perryStartRunLEFT = new Animation(new TextureRegion(textureStartRunLEFT), startToRunFrameCount, startToRunCycleTime, startToRunIsCycle);
+        perryStartRunLEFT = new Animation(new TextureRegion(textureStartRunLEFT), startToRunFrameCount, startToRunCycleTime, startToRunIsCycle, "Start Run Cycle Left");
 
 
         ///                        S T A R T     R U N    R I G H T                              ///
 
 
         Texture textureStartRunRight = new Texture("PerryIdletoRunShort.png");
-        perryStartRunRight = new Animation(new TextureRegion(textureStartRunRight), startToRunFrameCount, startToRunCycleTime, startToRunIsCycle);
+        perryStartRunRight = new Animation(new TextureRegion(textureStartRunRight), startToRunFrameCount, startToRunCycleTime, startToRunIsCycle, "Start Run Cycle Right");
 
 
 
@@ -185,13 +279,13 @@ public class PerryAnimationMGMT {
         ///                                  R U N   L E F T                                     ///
 
         Texture textureRunLEFT = new Texture("RunningLoopLEFT.png");
-        perryRunLEFT = new Animation(new TextureRegion(textureRunLEFT), runFrameCount, runCycleTime, runIsCycle);
+        perryRunLEFT = new Animation(new TextureRegion(textureRunLEFT), runFrameCount, runCycleTime, runIsCycle, "Running Left");
 
 
         ///                                 R U N    R I G H T                                   ///
 
         Texture textureRunRight = new Texture("RunningLoopCLEANEDUP.png");
-        perryRunRight = new Animation(new TextureRegion(textureRunRight), runFrameCount, runCycleTime, runIsCycle);
+        perryRunRight = new Animation(new TextureRegion(textureRunRight), runFrameCount, runCycleTime, runIsCycle, "Running Right");
 
 
 
@@ -218,13 +312,13 @@ public class PerryAnimationMGMT {
         ///                                C L I N G   L E F T                                    ///
 
         Texture textureClingLEFT = new Texture("LEFTWallCling.png");
-        perryClingLEFT = new Animation(new TextureRegion(textureClingLEFT), clingFrameCount, clingCycleTime, clingIsCycle);
+        perryClingLEFT = new Animation(new TextureRegion(textureClingLEFT), clingFrameCount, clingCycleTime, clingIsCycle, "Cling Left");
 
 
         ///                               C L I N G    R I G H T                                 ///
 
         Texture textureClingRight = new Texture("RightWallCling.png");
-        perryClingRight = new Animation(new TextureRegion(textureClingRight), clingFrameCount, clingCycleTime, clingIsCycle);
+        perryClingRight = new Animation(new TextureRegion(textureClingRight), clingFrameCount, clingCycleTime, clingIsCycle, "Cling Right");
 
 
 
@@ -251,12 +345,12 @@ public class PerryAnimationMGMT {
         ///                                 R O L L   L E F T                                    ///
 
         Texture textureRollLEFT = new Texture("RollLEFTWorking.png");
-        perryRollLEFT = new Animation(new TextureRegion(textureRollLEFT), rollFrameCount, rollCycleTime, rollIsCycle);
+        perryRollLEFT = new Animation(new TextureRegion(textureRollLEFT), rollFrameCount, rollCycleTime, rollIsCycle, "Roll Left");
 
         ///                                R O L L    R I G H T                                  ///
 
         Texture textureRollRight = new Texture("RollRightWorking.png");
-        perryRollRight = new Animation(new TextureRegion(textureRollRight), rollFrameCount, rollCycleTime, rollIsCycle);
+        perryRollRight = new Animation(new TextureRegion(textureRollRight), rollFrameCount, rollCycleTime, rollIsCycle, "Roll Right");
 
 
 
@@ -283,16 +377,56 @@ public class PerryAnimationMGMT {
         boolean quickAttackIsCycle = false;
 
 
+
+        quickAttackVertices.addFrameVertices(new frameVertices(0));
+        quickAttackVertices.addFrameVertices(new frameVertices(1));
+        quickAttackVertices.addFrameVertices(new frameVertices(2));
+        quickAttackVertices.addFrameVertices(new frameVertices(3));
+        quickAttackVertices.addFrameVertices(new frameVertices(4));
+
+        frameVertices quickAttFr5 = new frameVertices(5);
+        quickAttFr5.addVertices(208, 192);
+        quickAttFr5.addVertices(215, 195);
+        quickAttFr5.addVertices(143, 275);
+        quickAttFr5.addVertices(100, 270);
+        quickAttFr5.setBoundsInfo(new atkBounds(91, 190, 126, 89));
+        quickAttackVertices.addFrameVertices(quickAttFr5);
+
+
+
+        frameVertices quickAttFr6 = new frameVertices(6);
+        quickAttFr6.addVertices(245, 98);
+        quickAttFr6.addVertices(245, 165);
+        quickAttFr6.addVertices(228, 268);
+        quickAttFr6.addVertices(258, 264);
+        quickAttFr6.addVertices(303, 237);
+        quickAttFr6.addVertices(350, 172);
+        quickAttFr6.addVertices(359, 117);
+        quickAttFr6.addVertices(256, 42);
+        quickAttFr6.setBoundsInfo(new atkBounds(227, 43, 132, 231));
+        quickAttackVertices.addFrameVertices(quickAttFr6);
+
+
+        quickAttackVertices.addFrameVertices(new frameVertices(7));
+        quickAttackVertices.addFrameVertices(new frameVertices(8));
+        quickAttackVertices.addFrameVertices(new frameVertices(9));
+
+
+
+
+
+
+
         ///                           Q U I C K   A T T A C K   L E F T                          ///
 
         Texture textureQuickAttackLEFT = new Texture("PerryQuickAttackLEFT.png");
-        perryQuickAttackLEFT = new Animation(new TextureRegion(textureQuickAttackLEFT), quickAttackFrameCount, quickAttackCycleTime, quickAttackIsCycle);
+        perryQuickAttackLEFT = new Animation(new TextureRegion(textureQuickAttackLEFT), quickAttackFrameCount, quickAttackCycleTime, quickAttackIsCycle, "Quick Attack Left");
 
 
         ///                          Q U I C K   A T T A C K   R I G H T                         ///
 
         Texture textureQuickAttackRight = new Texture("PerryQuickAttackRight.png");
-        perryQuickAttackRight = new Animation(new TextureRegion(textureQuickAttackRight), quickAttackFrameCount, quickAttackCycleTime, quickAttackIsCycle);
+        perryQuickAttackRight = new Animation(new TextureRegion(textureQuickAttackRight), quickAttackFrameCount, quickAttackCycleTime, quickAttackIsCycle, "Quick Attack Right");
 
 
         quickAttackWidth = textureQuickAttackRight.getWidth();
@@ -403,6 +537,69 @@ public class PerryAnimationMGMT {
     public float getRollHeight() {
         return rollHeight;
     }
+
+    public float[] mapHitboxVerts(Vector3 position, frameVertices frameVerts, float frameWidth, boolean reverse) {
+
+        if (frameVerts.getFrameVertSize() == 0) {
+            return null;
+        }
+
+        float[] mappedHitbox = new float[frameVerts.getFrameVertSize()*2];
+        int i = 0;
+
+        if (reverse) {
+            for (hitboxVertices hbVerts : frameVerts.hitboxVerticesList) {
+                mappedHitbox[i] = (position.x + frameWidth - hbVerts.xCoordinate);
+                i ++;
+                mappedHitbox[i] = (position.y - hbVerts.yCoordinate);
+                i ++;
+            }
+        } else {
+            for (hitboxVertices hbVerts : frameVerts.hitboxVerticesList) {
+                mappedHitbox[i] = (position.x + hbVerts.xCoordinate);
+                i ++;
+                mappedHitbox[i] = (position.y + hbVerts.yCoordinate);
+                i ++;
+            }
+        }
+        return mappedHitbox;
+    }
+
+    public Rectangle mapBoundingBox(Vector3 position, frameVertices frameVerts, float frameWidth, boolean reverse) {
+
+        if (reverse){
+            return new Rectangle(position.x + frameWidth - frameVerts.attackBounds.xOffset, position.y + frameVerts.attackBounds.yOffset, frameVerts.attackBounds.width, frameVerts.attackBounds.height);
+        }
+
+        else{
+            return new Rectangle(position.x + frameVerts.attackBounds.xOffset, position.y + frameVerts.attackBounds.yOffset, frameVerts.attackBounds.width, frameVerts.attackBounds.height);
+
+        }
+    }
+
+
+    public attackBoxes getAttackHitbox(Vector3 position,Perry.State state, int currentFrame) {
+
+        switch (state) {
+            case QUICK_ATTACK_RIGHT:
+
+                frameVertices currentFrameVerts = quickAttackVertices.getFrameVerts(currentFrame);
+                float[] mappedHitboxVerts = mapHitboxVerts(position, currentFrameVerts, quickAttackWidth, false);
+
+                if (mappedHitboxVerts != null){
+                    System.out.println("hitbox not null!");
+                return new attackBoxes(mapBoundingBox(position, currentFrameVerts, quickAttackWidth, false), new Polygon(mapHitboxVerts(position, currentFrameVerts, quickAttackWidth, false)));}
+
+                else { return null;}
+
+            default:
+                return null;
+
+
+        }
+    }
+
+
 
 
 

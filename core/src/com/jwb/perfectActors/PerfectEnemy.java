@@ -2,6 +2,8 @@ package com.jwb.perfectActors;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.jwb.perfectWorld.TiledGameMap;
@@ -41,7 +43,9 @@ public abstract class PerfectEnemy {
     float newVeloctyX;
 
     //this will be used for Enemy hitbox
-    Rectangle bounds;
+    Rectangle enemyHitboxBounds;
+
+    Polygon enemyHitbox;
 
     //will be used to load and implement enemy animations
     EnemyAnimationMGMT animationManager;
@@ -64,7 +68,10 @@ public abstract class PerfectEnemy {
 
     }
 
+
     public abstract void update(float dt);
+
+    public abstract void takeDamage();
 
     public void setCanMove(boolean canMove){ this.canMove = canMove;}
 
@@ -90,7 +97,22 @@ public abstract class PerfectEnemy {
 
     abstract void updateAnimation();
 
-    public Rectangle getBounds(){ return this.bounds;}
+    public Rectangle getEnemyBounds(){ return this.enemyHitboxBounds;}
+
+    public Polygon getEnemyHitbox(){ return this.enemyHitbox;}
+
+    public boolean checkIfHit(Rectangle atkBounds, Polygon atkPoly){
+
+        if ((atkBounds == null) || (atkPoly == null)){ return false;}
+
+        if (!this.enemyHitboxBounds.overlaps(atkBounds)){
+            System.out.println("bounds do not overlap");
+            return false;
+        }
+
+        System.out.println("bounds overlap!");
+        return Intersector.overlapConvexPolygons(this.enemyHitbox, atkPoly);
+    }
 
     public Vector3 getPosition(){ return this.position;}
 

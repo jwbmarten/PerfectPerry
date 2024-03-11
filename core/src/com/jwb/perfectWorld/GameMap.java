@@ -21,7 +21,6 @@ public abstract class GameMap {
     public TileType getTileTypeByLocation(int layer, float x, float y){
         return this.getTileTypeByCoordinate(layer, (int) (x / TileType.TILE_SIZE), (int) (y / TileType.TILE_SIZE));
     }
-
     /**
      * Gets a tile at its coordinate within the map at a specified layer.
      * @param layer

@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class TileType {
 
-    public static final int TILE_SIZE = 32;
+    public static final int TILE_SIZE = 300;
 
     private int id;
     private boolean collidable;

@@ -3,6 +3,7 @@ package com.jwb.perfectActors;
 import static com.jwb.perfectWorld.TileType.TILE_SIZE;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.jwb.perfectWorld.TiledGameMap;
@@ -17,6 +18,8 @@ public class Perry {
     boolean canMove;
 
     boolean grounded;
+
+    boolean isAttacking;
 
     private float repositionHorizontal;
 
@@ -47,6 +50,11 @@ public class Perry {
 
     //this will be Perry's hitbox
     private Rectangle bounds;
+
+    //Perry's attacking hitbox
+    public PerryAnimationMGMT.attackBoxes atkBoxes;
+    public Rectangle atkHitboxBounds;
+    public Polygon atkHitbox;
 
     private PerryAnimationMGMT animationManager;
 
@@ -186,6 +194,7 @@ public class Perry {
 
     private void updateAnimation() {
         this.activeAnimation = animationManager.getAnimation(currentState);
+        System.out.println(activeAnimation.name + "  " + activeAnimation.frame);
     }
 
     public void chooseLeftMoveState()
@@ -219,15 +228,13 @@ public class Perry {
     public void chooseRightMoveState() {
 
 
-
-
         // if the current state is idle set state to start running right
         if ((leftMove) || (currentState == State.IDLE) ){
             activeAnimation.reset();
             velocity.x = 0;
             changeState(State.START_RUN_RIGHT);
             canMove = true;
-            System.out.print("State changed from idle or moving left to start run right");
+//            System.out.print("State changed from idle or moving left to start run right");
             leftMove = false;
             rightMove = true;
         }
@@ -236,6 +243,7 @@ public class Perry {
 
         //if the current state is start running right and the animation is complete, set the state to running right
         if ((currentState == State.START_RUN_RIGHT) && activeAnimation.isComplete()){
+
             changeState(State.RUNNING_RIGHT);
             canMove = true;
         }
@@ -246,9 +254,13 @@ public class Perry {
 
     public void changeState(State newState) {
         if (this.currentState != newState) {
-            activeAnimation.reset();
+            System.out.println(activeAnimation.name + "  " + activeAnimation.frame);
             this.currentState = newState;
+            System.out.println("State changed to" + newState);
+            activeAnimation.reset();
             updateAnimation();
+
+
         }
     }
 
@@ -453,9 +465,6 @@ public class Perry {
             }
         }
 
-
-
-
     }
 
     public void setJumpBack(){
@@ -492,6 +501,7 @@ public class Perry {
 
                 changeState(State.QUICK_ATTACK_LEFT);
                 canMove = false;
+                isAttacking = true;
                 velocity.x = 0;
             }
 
@@ -499,11 +509,14 @@ public class Perry {
 
                 changeState(State.QUICK_ATTACK_RIGHT);
                 canMove = false;
+                isAttacking = true;
                 velocity.x = 0;
             }
         }
 
         if ((activeAnimation.isComplete())) {
+
+            isAttacking = false;
 
             if (currentState == State.QUICK_ATTACK_LEFT){
                 changeState(State.IDLE_LEFT);
@@ -514,8 +527,13 @@ public class Perry {
 
             canMove = true;
 
-
         }
+
+        atkBoxes = animationManager.getAttackHitbox(position, currentState, activeAnimation.getCurrFrameNum());
+        if (atkBoxes != null){
+        atkHitboxBounds = atkBoxes.getBoundingBox();
+        atkHitbox = atkBoxes.getHitPoly();}
+
     }
 
     public void handleGravity(float dt){
@@ -713,7 +731,13 @@ public class Perry {
 
     public Rectangle getBounds() {return bounds;}
 
-    public void dispose() { System.out.println("Perry Disposed!"); //texture.dispose();
-         }
+    public Rectangle getAtkHitboxBounds(){ return atkHitboxBounds;}
+
+    public Polygon getAtkHitbox() {return atkHitbox;}
+
+    public boolean getIsAttacking() {return isAttacking;}
+
+    public void dispose() { System.out.println("Perry Disposed!");} //texture.dispose();
+
 
 }
