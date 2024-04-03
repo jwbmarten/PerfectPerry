@@ -8,7 +8,97 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.jwb.perfectWorld.TiledGameMap;
 
+import java.util.ArrayList;
+
 public abstract class PerfectEnemy {
+
+    static class attackBoxes{
+
+        Rectangle boundingBox;
+        Polygon hitPoly;
+
+        public attackBoxes(Rectangle boundingBox, Polygon hitPoly){
+            this.boundingBox = boundingBox;
+            this.hitPoly = hitPoly;
+        }
+
+        public Polygon getHitPoly() {
+            return hitPoly;
+        }
+
+        public Rectangle getBoundingBox() {
+            return boundingBox;
+        }
+    }
+
+    static class atkBounds{
+
+        int xOffset;
+        int yOffset;
+        int width;
+        int height;
+
+        public atkBounds(int xOffset, int yOffset, int width, int height){
+            this.xOffset = xOffset;
+            this.yOffset = yOffset;
+            this.width = width;
+            this.height = height;
+        }
+    }
+
+    static class animationVertices{
+
+        ArrayList<PerfectEnemy.frameVertices> frameVerticesList = new ArrayList<>();
+
+        public void addFrameVertices(PerfectEnemy.frameVertices frameVertices){
+            this.frameVerticesList.add(frameVertices);
+        }
+
+        public PerfectEnemy.frameVertices getFrameVerts(int frame){
+
+            return this.frameVerticesList.get(frame);
+        }
+    }
+
+    static class frameVertices{
+
+        int frameNum;
+        PerfectEnemy.atkBounds attackBounds;
+        int frameWidth;
+
+        ArrayList<PerfectEnemy.hitboxVertices> hitboxVerticesList = new ArrayList<>();
+
+
+        frameVertices(int frameNum){
+            this.frameNum = frameNum;
+        }
+
+        public void addVertices(int xCoord, int yCoord){
+            this.hitboxVerticesList.add(new PerfectEnemy.hitboxVertices(xCoord, yCoord));
+        }
+
+        public int getFrameVertSize(){ return this.hitboxVerticesList.size();}
+
+        public void setBoundsInfo(PerfectEnemy.atkBounds atkBounds){
+
+            this.attackBounds = atkBounds;
+        }
+
+    }
+
+
+    static class hitboxVertices {
+        int xCoordinate;
+        int yCoordinate;
+
+
+        hitboxVertices(int xCoordinate, int yCoordinate) {
+            this.xCoordinate = xCoordinate;
+            this.yCoordinate = yCoordinate;
+        }
+
+        hitboxVertices(int frameNum) {}
+    }
 
     //enemy name
     private String enemyType;
@@ -22,6 +112,8 @@ public abstract class PerfectEnemy {
 
     // is enemy on the ground
     boolean grounded;
+
+    boolean isAttacking;
 
     //maximum run speed
     int maxRunSpeed;
@@ -41,6 +133,10 @@ public abstract class PerfectEnemy {
 
     //this will be used to detect movement colllision
     float newVeloctyX;
+
+    public PerfectEnemy.attackBoxes atkBoxes;
+    public Rectangle atkHitboxBounds;
+    public Polygon atkHitbox;
 
     //this will be used for Enemy hitbox
     Rectangle enemyHitboxBounds;
@@ -69,7 +165,7 @@ public abstract class PerfectEnemy {
     }
 
 
-    public abstract void update(float dt);
+    public abstract void update(float dt, Vector3 perryPosition);
 
     public abstract void takeDamage();
 
@@ -83,7 +179,15 @@ public abstract class PerfectEnemy {
 
     abstract void handleIdle(float dt);
 
-    abstract void changeState(EnemyStates state);
+    void changeState(EnemyStates newState){
+        if (this.currentState != newState) {
+            System.out.println(activeAnimation.name + "  " + activeAnimation.frame);
+            this.currentState = newState;
+            System.out.println("YELLOW FELLOW State changed to" + newState);
+            activeAnimation.reset();
+            updateAnimation();
+        }
+    };
 
     abstract EnemyStates getCurrentState();
 

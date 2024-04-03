@@ -60,6 +60,10 @@ public class Perry {
 
     private Animation activeAnimation;
 
+    private Animation activeAnimationBehind;
+
+    private Animation activeAnimationForeground;
+
     private State currentState ;
 
     //track if Perry is colliding with anything
@@ -70,18 +74,28 @@ public class Perry {
     public enum State {
         IDLE,
         IDLE_LEFT,
+        START_WALK_LEFT,
         START_RUN_LEFT,
+        WALKING_LEFT,
+        REVERSE_WALKING_LEFT,
         RUNNING_LEFT,
         CLING_LEFT,
         ROLLING_LEFT,
         JUMP_BACK_LEFT,
         QUICK_ATTACK_LEFT,
+        SHIELD_UP_LEFT,
+        SHIELD_CYCLE_LEFT,
+        START_WALK_RIGHT,
         START_RUN_RIGHT,
+        WALKING_RIGHT,
+        REVERSE_WALKING_RIGHT,
         RUNNING_RIGHT,
         CLING_RIGHT,
         ROLLING_RIGHT,
         JUMP_BACK_RIGHT,
-        QUICK_ATTACK_RIGHT
+        QUICK_ATTACK_RIGHT,
+        SHIELD_UP_RIGHT,
+        SHIELD_CYCLE_RIGHT
     }
     public Perry(int x, int y, TiledGameMap currentLevel){
 
@@ -180,7 +194,7 @@ public class Perry {
 
             } else {
 
-                System.out.println("Neither Left nor right pressed, slowing down");
+//                System.out.println("Neither Left nor right pressed, slowing down");
                 velocity.x *= 0.2f; // Apply a simple friction factor
             }
         }
@@ -368,6 +382,12 @@ public class Perry {
 
     }
 
+    public void handleShield(){
+
+//        if (currentState != State.SHIELD_UP_LEFT) && (currentState != State.SHIELD_CYCLE_LEFT) && (currentState != State.SHIELD_UP_RIGHT) && (currentState != State.SHIELD_CYCLE_LEFT)
+
+    }
+
     public void handleJumpBack(float dt){
 
 //        System.out.println("handlin' jump back'");
@@ -500,6 +520,7 @@ public class Perry {
             if (this.leftMove) {
 
                 changeState(State.QUICK_ATTACK_LEFT);
+                position.x -= 192;
                 canMove = false;
                 isAttacking = true;
                 velocity.x = 0;
@@ -519,6 +540,7 @@ public class Perry {
             isAttacking = false;
 
             if (currentState == State.QUICK_ATTACK_LEFT){
+                position.x += 192;
                 changeState(State.IDLE_LEFT);
             }
 
@@ -533,6 +555,11 @@ public class Perry {
         if (atkBoxes != null){
         atkHitboxBounds = atkBoxes.getBoundingBox();
         atkHitbox = atkBoxes.getHitPoly();}
+
+        else {
+            atkHitboxBounds = null;
+            atkHitbox = null;
+        }
 
     }
 
@@ -721,6 +748,14 @@ public class Perry {
 
     public TextureRegion getTexture() {
         return activeAnimation.getFrame();
+    }
+
+    public TextureRegion getTextureForeground(){
+        return activeAnimationForeground.getFrame();
+    }
+
+    public TextureRegion getTextureBehind(){
+        return activeAnimationBehind.getFrame();
     }
 
     public void setCanMove(boolean canMove) {

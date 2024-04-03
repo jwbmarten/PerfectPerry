@@ -112,27 +112,29 @@ public class PlayState extends State {
         // Get Perry's position as a Vector3
         Vector3 perryPosition = new Vector3(perry.getPosition().x, perry.getPosition().y, 0);
 
-        // Set the target position for the camera, offset if desired
-        targetPosition.set(perryPosition.x + 96, perryPosition.y + 400, 0);
+        if (perry.getCanMove() || (perry.getCurrentState() == Perry.State.ROLLING_LEFT) || (perry.getCurrentState() == Perry.State.ROLLING_RIGHT)) {
+            // Set the target position for the camera, offset if desired
+            targetPosition.set(perryPosition.x + 96, perryPosition.y + 400, 0);
 
-        // Interpolate the camera's position towards the target position
-        cam.position.lerp(targetPosition, lerpFactor);
+            // Interpolate the camera's position towards the target position
+            cam.position.lerp(targetPosition, lerpFactor);
 
-        cam.position.set( (int) cam.position.x, (int) cam.position.y, 0 );
-
+            cam.position.set((int) cam.position.x, (int) cam.position.y, 0);
+        }
         // Ensure the camera updates its matrixes
         cam.update();
 
         perry.update(dt, inputProcessor.returnHandledInputs()[0], inputProcessor.returnHandledInputs()[1]);
 
         if (perry.getIsAttacking()){
+            System.out.println("Perry attacking!");
             if(yellowFellow.checkIfHit(perry.getAtkHitboxBounds(), perry.getAtkHitbox())){
                 System.out.println("Yellow Fellow HIT!");
                 yellowFellow.takeDamage();
             }
         }
 
-        yellowFellow.update(dt);
+        yellowFellow.update(dt, perry.getPosition());
 
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -176,12 +178,15 @@ public class PlayState extends State {
         // Draw the polygon
         // Assuming polygon is a Polygon object you've created elsewhere
         if (perry.atkHitbox != null){
+            float [] transformedHitboxVerts = perry.atkHitbox.getTransformedVertices();
+            shapeRenderer.rect(perry.getAtkHitboxBounds().getX(), perry.getAtkHitboxBounds().y, perry.getAtkHitboxBounds().width, perry.getAtkHitboxBounds().height);
         shapeRenderer.polygon(perry.atkHitbox.getTransformedVertices());}
 
         shapeRenderer.polygon(yellowFellow.getYelFelBodyVerts());
 
         // End ShapeRenderer
         shapeRenderer.end();
+
 
     }
 

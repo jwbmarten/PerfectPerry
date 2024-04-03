@@ -101,11 +101,18 @@ public class PerryAnimationMGMT {
     Perry perry;
 
 
+    frameVertices currentFrameVerts;
+    float[] mappedHitboxVerts;
+
     public float animationWidth;
     public float animationHeight;
 
     private Animation perryIdle;
     private Animation perryIdleLEFT;
+    private Animation perryStartWalkRight;
+    private Animation perryStartWalkLEFT;
+    private Animation perryWalkRight;
+    private Animation perryWalkLEFT;
     private Animation perryStartRunRight;
     private Animation perryStartRunLEFT;
     private Animation perryRunRight;
@@ -121,25 +128,39 @@ public class PerryAnimationMGMT {
     private Animation perryQuickAttackLEFT;
     animationVertices quickAttackVertices = new animationVertices();
 
-
+    private Animation perryShieldUpLEFT;
+    private Animation perryShieldUpRight;
+    private Animation perryWalkRightShield;
+    private Animation perryWalkLEFTShield;
+    private Animation perryREVWalkRightShield;
+    private Animation perryREVWalkLEFTShield;
+    private Animation perryShieldLoopRight;
+    animationVertices shieldLoopVertices = new animationVertices();
 
     private float idleWidth;
     private float idleHeight;
     private float jumpBackWidth;
     private float jumpBackHeight;
 
-
     private int idleFrameCount;
     private float idleCycleTime;
     private int jumpBackFrameCount;
     private float jumpBackCycleTime;
 
+    public float startToWalkWidth;
+    public float startToWalkHeight;
+    private int startToWalkFrameCount;
+    private float startToWalkCycleTime;
+
+    private float walkWidth;
+    private float walkHeight;
+    private int walkFrameCount;
+    private float walkCycleTime;
 
     public float startToRunWidth;
     public float startToRunHeight;
     private int startToRunFrameCount;
     private float startToRunCycleTime;
-
 
     private float runWidth;
     private float runHeight;
@@ -161,6 +182,15 @@ public class PerryAnimationMGMT {
     private int quickAttackFrameCount;
     private float quickAttackCycleTime;
 
+    private float shieldUpWidth;
+    private float shieldUpHeight;
+    private int shieldUpFrameCount;
+    private float shieldUpCycleTime;
+
+    private float shieldLoopWidth;
+    private float shieldLoopHeight;
+    private int shieldLoopFrameCount;
+    private float shieldLoopCycleTime;
 
 
     private int gravity = -15;
@@ -236,6 +266,60 @@ public class PerryAnimationMGMT {
 
         jumpBackWidth = textureJumpBack.getWidth() /((float) jumpBackFrameCount);
         jumpBackHeight = textureJumpBack.getHeight();
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ///                             S T A R T   W A L K I N G                                ///
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        startToWalkFrameCount = 3;
+        startToWalkCycleTime = 0.3f;
+        boolean startToWalkIsCycle = false;
+
+        ///                          S T A R T   W A L K   L E F T                               ///
+
+        Texture textureStartWalkLEFT = new Texture("PerryIdletoWalkLEFT.png");
+        perryStartWalkLEFT = new Animation(new TextureRegion(textureStartWalkLEFT), startToWalkFrameCount, startToWalkCycleTime, startToWalkIsCycle, "Start Walk LEFT");
+
+        ///                         S T A R T   W A L K   R I G H T                              ///
+
+        Texture textureStartWalkRIGHT = new Texture("PerryIdletoWalkRight.png");
+        perryStartWalkRight = new Animation(new TextureRegion(textureStartWalkRIGHT), startToWalkFrameCount, startToWalkCycleTime, startToWalkIsCycle, "Start Walk RIGHT");
+
+        startToWalkWidth = textureStartWalkRIGHT.getWidth() / ((float) startToWalkFrameCount);
+        startToWalkHeight = textureStartWalkRIGHT.getHeight();
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ///                                   W A L K I N G                                      ///
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        walkFrameCount = 8;
+        walkCycleTime = 3f;
+        boolean walkIsCycle = true;
+
+        ///                                W A L K   L E F T                                     ///
+
+        Texture textureWalkingLEFT = new Texture("PerryWalkLEFTCycle.png");
+        perryWalkLEFT = new Animation(new TextureRegion(textureWalkingLEFT), walkFrameCount, walkCycleTime, walkIsCycle, "Walking LEFT");
+
+        ///                              W A L K   R I G H T                                     ///
+
+        Texture textureWalkingRight = new Texture("PerryWalkRightCycle.png");
+        perryWalkLEFT = new Animation(new TextureRegion(textureWalkingRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walking LEFT");
+
+
+        ///                        R E V E R S E   W A L K   L E F T                             ///
+
+        Texture textureREVWalkingLEFT = new Texture("PerryREVWalkLEFTCycle.png");
+        perryWalkLEFT = new Animation(new TextureRegion(textureREVWalkingLEFT), walkFrameCount, walkCycleTime, walkIsCycle, "Walking LEFT");
+
+        ///                       R E V E R S E   W A L K   R I G H T                            ///
+
+        Texture textureREVWalkingRight = new Texture("PerryREVWalkRightCycle.png");
+        perryWalkLEFT = new Animation(new TextureRegion(textureREVWalkingRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walking LEFT");
+
 
 
         ////////////////////////////////////////////////////////////////////////////////////////////
@@ -373,9 +457,8 @@ public class PerryAnimationMGMT {
 
 
         quickAttackFrameCount = 10;
-        quickAttackCycleTime = 1f;
+        quickAttackCycleTime = 1.3f;
         boolean quickAttackIsCycle = false;
-
 
 
         quickAttackVertices.addFrameVertices(new frameVertices(0));
@@ -384,6 +467,7 @@ public class PerryAnimationMGMT {
         quickAttackVertices.addFrameVertices(new frameVertices(3));
         quickAttackVertices.addFrameVertices(new frameVertices(4));
 
+
         frameVertices quickAttFr5 = new frameVertices(5);
         quickAttFr5.addVertices(208, 192);
         quickAttFr5.addVertices(215, 195);
@@ -391,7 +475,6 @@ public class PerryAnimationMGMT {
         quickAttFr5.addVertices(100, 270);
         quickAttFr5.setBoundsInfo(new atkBounds(91, 190, 126, 89));
         quickAttackVertices.addFrameVertices(quickAttFr5);
-
 
 
         frameVertices quickAttFr6 = new frameVertices(6);
@@ -414,9 +497,6 @@ public class PerryAnimationMGMT {
 
 
 
-
-
-
         ///                           Q U I C K   A T T A C K   L E F T                          ///
 
         Texture textureQuickAttackLEFT = new Texture("PerryQuickAttackLEFT.png");
@@ -429,9 +509,218 @@ public class PerryAnimationMGMT {
         perryQuickAttackRight = new Animation(new TextureRegion(textureQuickAttackRight), quickAttackFrameCount, quickAttackCycleTime, quickAttackIsCycle, "Quick Attack Right");
 
 
-        quickAttackWidth = textureQuickAttackRight.getWidth();
+        quickAttackWidth = (textureQuickAttackRight.getWidth()/ quickAttackFrameCount);
         quickAttackHeight = textureQuickAttackRight.getHeight();
 
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ///                              S H I E L D / P A R R Y                                 ///
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        shieldUpFrameCount = 8;
+        shieldUpCycleTime = 0.5f;
+        boolean shieldUpIsCycle = false;
+
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        ///                      I D L E   T O   S H I E L D   U P   R I G H T                   ///
+
+        Texture textureShieldUpRight = new Texture("PerryShieldUpRight.png");
+        perryShieldUpRight = new Animation(new TextureRegion(textureShieldUpRight), shieldUpFrameCount, shieldUpCycleTime, shieldUpIsCycle, "Shield Up Right");
+
+        ///                      I D L E   T O   S H I E L D   U P   R I G H T                   ///
+
+        Texture textureShieldUpLEFT = new Texture("PerryShieldUpLEFT.png");
+        perryShieldUpLEFT = new Animation(new TextureRegion(textureShieldUpRight), shieldUpFrameCount, shieldUpCycleTime, shieldUpIsCycle, "Shield Up Right");
+
+        shieldUpWidth = (textureShieldUpRight.getWidth()/ (float)shieldUpFrameCount);
+        shieldUpWidth = textureShieldUpRight.getHeight();
+
+        ///                      W A L K I N G   S H I E L D   U P   R I G H T                   ///
+
+        Texture textureShieldWalkRight = new Texture("PerryWalkRightShield.png");
+        perryWalkRightShield = new Animation(new TextureRegion(textureShieldWalkRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walk Right Shield");
+
+        ///                      W A L K I N G   S H I E L D   U P   L E F T                     ///
+
+        Texture textureShieldWalkLeft = new Texture("PerryWalkLEFTShield.png");
+        perryWalkLEFTShield = new Animation(new TextureRegion(textureShieldWalkRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walk Right Shield");
+
+        ///               R E V E R S E   W A L K I N G   S H I E L D   U P   R I G H T          ///
+
+        Texture textureREVShieldWalkRight = new Texture("PerryWalkRightShieldREV.png");
+        perryREVWalkRightShield = new Animation(new TextureRegion(textureREVShieldWalkRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walk Right Shield");
+
+        ///               R E V E R S E   W A L K I N G   S H I E L D   U P   L E F T            ///
+
+        Texture textureREVShieldWalkLeft = new Texture("PerryWalkLEFTShieldREV.png");
+        perryREVWalkLEFTShield = new Animation(new TextureRegion(textureREVShieldWalkRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walk Right Shield");
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        ///                         S H I E L D   L O O P   R I G H T                            ///
+
+        shieldLoopFrameCount = 9;
+        shieldLoopCycleTime = 1f;
+        boolean shieldLoopIsCycle = true;
+
+        frameVertices shieldFrameVerts0 = new frameVertices(0);
+        shieldFrameVerts0.addVertices(173, 0);
+        shieldFrameVerts0.addVertices(194, 23);
+        shieldFrameVerts0.addVertices(203, 110);
+        shieldFrameVerts0.addVertices(192, 178);
+        shieldFrameVerts0.addVertices(134, 264);
+        shieldFrameVerts0.addVertices(51, 276);
+        shieldFrameVerts0.addVertices(46, 263);
+        shieldFrameVerts0.addVertices(125, 243);
+        shieldFrameVerts0.addVertices(171, 167);
+        shieldFrameVerts0.addVertices(181, 100);
+        shieldFrameVerts0.addVertices(174, 22);
+        shieldFrameVerts0.addVertices(156, 0);
+        shieldFrameVerts0.setBoundsInfo(new atkBounds(46, 0, 158, 279));
+        shieldLoopVertices.addFrameVertices(shieldFrameVerts0);
+
+        frameVertices shieldFrameVerts1 = new frameVertices(1);
+        shieldFrameVerts1.addVertices(173, 0);
+        shieldFrameVerts1.addVertices(194, 23);
+        shieldFrameVerts1.addVertices(203, 110);
+        shieldFrameVerts1.addVertices(192, 178);
+        shieldFrameVerts1.addVertices(134, 264);
+        shieldFrameVerts1.addVertices(51, 276);
+        shieldFrameVerts1.addVertices(46, 263);
+        shieldFrameVerts1.addVertices(125, 243);
+        shieldFrameVerts1.addVertices(171, 167);
+        shieldFrameVerts1.addVertices(181, 100);
+        shieldFrameVerts1.addVertices(174, 22);
+        shieldFrameVerts1.addVertices(156, 0);
+        shieldFrameVerts1.setBoundsInfo(new atkBounds(46, 0, 158, 279));
+        shieldLoopVertices.addFrameVertices(shieldFrameVerts1);
+
+        frameVertices shieldFrameVerts2 = new frameVertices(2);
+        shieldFrameVerts2.addVertices(173, 0);
+        shieldFrameVerts2.addVertices(194, 23);
+        shieldFrameVerts2.addVertices(203, 110);
+        shieldFrameVerts2.addVertices(192, 178);
+        shieldFrameVerts2.addVertices(134, 264);
+        shieldFrameVerts2.addVertices(51, 276);
+        shieldFrameVerts2.addVertices(46, 263);
+        shieldFrameVerts2.addVertices(125, 243);
+        shieldFrameVerts2.addVertices(171, 167);
+        shieldFrameVerts2.addVertices(181, 100);
+        shieldFrameVerts2.addVertices(174, 22);
+        shieldFrameVerts2.addVertices(156, 0);
+        shieldFrameVerts2.setBoundsInfo(new atkBounds(46, 0, 158, 279));
+        shieldLoopVertices.addFrameVertices(shieldFrameVerts2);
+
+        frameVertices shieldFrameVerts3 = new frameVertices(3);
+        shieldFrameVerts3.addVertices(173, 0);
+        shieldFrameVerts3.addVertices(194, 23);
+        shieldFrameVerts3.addVertices(203, 110);
+        shieldFrameVerts3.addVertices(192, 178);
+        shieldFrameVerts3.addVertices(134, 264);
+        shieldFrameVerts3.addVertices(51, 276);
+        shieldFrameVerts3.addVertices(46, 263);
+        shieldFrameVerts3.addVertices(125, 243);
+        shieldFrameVerts3.addVertices(171, 167);
+        shieldFrameVerts3.addVertices(181, 100);
+        shieldFrameVerts3.addVertices(174, 22);
+        shieldFrameVerts3.addVertices(156, 0);
+        shieldFrameVerts3.setBoundsInfo(new atkBounds(46, 0, 158, 279));
+        shieldLoopVertices.addFrameVertices(shieldFrameVerts3);
+
+        frameVertices shieldFrameVerts4 = new frameVertices(4);
+        shieldFrameVerts4.addVertices(173, 0);
+        shieldFrameVerts4.addVertices(194, 23);
+        shieldFrameVerts4.addVertices(203, 110);
+        shieldFrameVerts4.addVertices(192, 178);
+        shieldFrameVerts4.addVertices(134, 264);
+        shieldFrameVerts4.addVertices(51, 276);
+        shieldFrameVerts4.addVertices(46, 263);
+        shieldFrameVerts4.addVertices(125, 243);
+        shieldFrameVerts4.addVertices(171, 167);
+        shieldFrameVerts4.addVertices(181, 100);
+        shieldFrameVerts4.addVertices(174, 22);
+        shieldFrameVerts4.addVertices(156, 0);
+        shieldFrameVerts4.setBoundsInfo(new atkBounds(46, 0, 158, 279));
+        shieldLoopVertices.addFrameVertices(shieldFrameVerts4);
+
+        frameVertices shieldFrameVerts5 = new frameVertices(5);
+        shieldFrameVerts5.addVertices(173, 0);
+        shieldFrameVerts5.addVertices(194, 23);
+        shieldFrameVerts5.addVertices(203, 110);
+        shieldFrameVerts5.addVertices(192, 178);
+        shieldFrameVerts5.addVertices(134, 264);
+        shieldFrameVerts5.addVertices(51, 276);
+        shieldFrameVerts5.addVertices(46, 263);
+        shieldFrameVerts5.addVertices(125, 243);
+        shieldFrameVerts5.addVertices(171, 167);
+        shieldFrameVerts5.addVertices(181, 100);
+        shieldFrameVerts5.addVertices(174, 22);
+        shieldFrameVerts5.addVertices(156, 0);
+        shieldFrameVerts5.setBoundsInfo(new atkBounds(46, 0, 158, 279));
+        shieldLoopVertices.addFrameVertices(shieldFrameVerts5);
+
+        frameVertices shieldFrameVerts6 = new frameVertices(6);
+        shieldFrameVerts6.addVertices(173, 0);
+        shieldFrameVerts6.addVertices(194, 23);
+        shieldFrameVerts6.addVertices(203, 110);
+        shieldFrameVerts6.addVertices(192, 178);
+        shieldFrameVerts6.addVertices(134, 264);
+        shieldFrameVerts6.addVertices(51, 276);
+        shieldFrameVerts6.addVertices(46, 263);
+        shieldFrameVerts6.addVertices(125, 243);
+        shieldFrameVerts6.addVertices(171, 167);
+        shieldFrameVerts6.addVertices(181, 100);
+        shieldFrameVerts6.addVertices(174, 22);
+        shieldFrameVerts6.addVertices(156, 0);
+        shieldFrameVerts6.setBoundsInfo(new atkBounds(46, 0, 158, 279));
+        shieldLoopVertices.addFrameVertices(shieldFrameVerts6);
+
+        frameVertices shieldFrameVerts7 = new frameVertices(7);
+        shieldFrameVerts7.addVertices(173, 0);
+        shieldFrameVerts7.addVertices(194, 23);
+        shieldFrameVerts7.addVertices(203, 110);
+        shieldFrameVerts7.addVertices(192, 178);
+        shieldFrameVerts7.addVertices(134, 264);
+        shieldFrameVerts7.addVertices(51, 276);
+        shieldFrameVerts7.addVertices(46, 263);
+        shieldFrameVerts7.addVertices(125, 243);
+        shieldFrameVerts7.addVertices(171, 167);
+        shieldFrameVerts7.addVertices(181, 100);
+        shieldFrameVerts7.addVertices(174, 22);
+        shieldFrameVerts7.addVertices(156, 0);
+        shieldFrameVerts7.setBoundsInfo(new atkBounds(46, 0, 158, 279));
+        shieldLoopVertices.addFrameVertices(shieldFrameVerts7);
+
+        frameVertices shieldFrameVerts8 = new frameVertices(8);
+        shieldFrameVerts8.addVertices(173, 0);
+        shieldFrameVerts8.addVertices(194, 23);
+        shieldFrameVerts8.addVertices(203, 110);
+        shieldFrameVerts8.addVertices(192, 178);
+        shieldFrameVerts8.addVertices(134, 264);
+        shieldFrameVerts8.addVertices(51, 276);
+        shieldFrameVerts8.addVertices(46, 263);
+        shieldFrameVerts8.addVertices(125, 243);
+        shieldFrameVerts8.addVertices(171, 167);
+        shieldFrameVerts8.addVertices(181, 100);
+        shieldFrameVerts8.addVertices(174, 22);
+        shieldFrameVerts8.addVertices(156, 0);
+        shieldFrameVerts8.setBoundsInfo(new atkBounds(46, 0, 158, 279));
+        shieldLoopVertices.addFrameVertices(shieldFrameVerts8);
+
+        Texture textureShieldLoopR = new Texture("PerryShieldLoopRight.png");
+
+        shieldLoopWidth = (textureShieldLoopR.getWidth()/ shieldLoopFrameCount);
+        shieldLoopWidth = textureShieldLoopR.getHeight();
     }
 
     public Animation getAnimation(Perry.State state) {
@@ -549,9 +838,9 @@ public class PerryAnimationMGMT {
 
         if (reverse) {
             for (hitboxVertices hbVerts : frameVerts.hitboxVerticesList) {
-                mappedHitbox[i] = (position.x + frameWidth - hbVerts.xCoordinate);
+                mappedHitbox[i] = ((position.x + quickAttackWidth) - hbVerts.xCoordinate) ;
                 i ++;
-                mappedHitbox[i] = (position.y - hbVerts.yCoordinate);
+                mappedHitbox[i] = (position.y + hbVerts.yCoordinate);
                 i ++;
             }
         } else {
@@ -568,7 +857,7 @@ public class PerryAnimationMGMT {
     public Rectangle mapBoundingBox(Vector3 position, frameVertices frameVerts, float frameWidth, boolean reverse) {
 
         if (reverse){
-            return new Rectangle(position.x + frameWidth - frameVerts.attackBounds.xOffset, position.y + frameVerts.attackBounds.yOffset, frameVerts.attackBounds.width, frameVerts.attackBounds.height);
+            return new Rectangle(position.x + frameWidth - frameVerts.attackBounds.xOffset - frameVerts.attackBounds.width, position.y + frameVerts.attackBounds.yOffset, frameVerts.attackBounds.width, frameVerts.attackBounds.height);
         }
 
         else{
@@ -583,12 +872,23 @@ public class PerryAnimationMGMT {
         switch (state) {
             case QUICK_ATTACK_RIGHT:
 
-                frameVertices currentFrameVerts = quickAttackVertices.getFrameVerts(currentFrame);
-                float[] mappedHitboxVerts = mapHitboxVerts(position, currentFrameVerts, quickAttackWidth, false);
+                currentFrameVerts = quickAttackVertices.getFrameVerts(currentFrame);
+                mappedHitboxVerts = mapHitboxVerts(position, currentFrameVerts, quickAttackWidth, false);
 
                 if (mappedHitboxVerts != null){
                     System.out.println("hitbox not null!");
                 return new attackBoxes(mapBoundingBox(position, currentFrameVerts, quickAttackWidth, false), new Polygon(mapHitboxVerts(position, currentFrameVerts, quickAttackWidth, false)));}
+
+                else { return null;}
+
+            case QUICK_ATTACK_LEFT:
+
+                currentFrameVerts = quickAttackVertices.getFrameVerts(currentFrame);
+                mappedHitboxVerts = mapHitboxVerts(position, currentFrameVerts, quickAttackWidth, true);
+
+                if (mappedHitboxVerts != null){
+                    System.out.println("hitbox not null!");
+                    return new attackBoxes(mapBoundingBox(position, currentFrameVerts, quickAttackWidth, true), new Polygon(mapHitboxVerts(position, currentFrameVerts, quickAttackWidth, true)));}
 
                 else { return null;}
 
@@ -598,10 +898,4 @@ public class PerryAnimationMGMT {
 
         }
     }
-
-
-
-
-
-
 }
