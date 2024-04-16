@@ -12,6 +12,10 @@ public class PerryInputProcessor implements InputProcessor {
 
     private boolean leftPressed;
 
+    private boolean spacePressed;
+
+    private boolean shieldPressed;
+
     //initialize Perry field that will be assigned via constructor
     private Perry perry;
 
@@ -63,6 +67,7 @@ public class PerryInputProcessor implements InputProcessor {
             case Keys.D:
                 //perry.setRightMove(true);
                 this.rightPressed = true;
+                System.out.println("Right key pressed!");
                 break;
             //case if space is pressed
             case Keys.SPACE:
@@ -74,14 +79,18 @@ public class PerryInputProcessor implements InputProcessor {
                     perry.setJumpBack();
                 }
 
-                else if (perry.getCanMove()){
-                perry.setRoll();
-                }
-                getCameraPosition = true;
+                spacePressed = true;
+                System.out.println("Space key pressed!");
+
                 break;
             //case if L is pressed
             case Keys.L:
                 perry.handleQuickAttack();
+                break;
+            case Keys.O:
+                this.shieldPressed = true;
+                break;
+
         }
         return true;
     }
@@ -99,20 +108,38 @@ public class PerryInputProcessor implements InputProcessor {
             //case Keys.LEFT:
             case Keys.A:
                 //perry.setLeftMove(false);
-                System.out.println("Left button released!");
                 this.leftPressed = false;
+                System.out.println("Left button released!");
                 if (perry.getCurrentState() == Perry.State.CLING_LEFT){
                     perry.setCanMove(true);}
                 break;
             //case Keys.RIGHT:
             case Keys.D:
-                System.out.println("Right button released!");
                 this.rightPressed = false;
+                System.out.println("Right button released!");
                 if (perry.getCurrentState() == Perry.State.CLING_RIGHT){
                 perry.setCanMove(true);}
                 //perry.setRightMove(false);
                 break;
 
+            case Keys.SPACE:
+                this.spacePressed = false;
+                if ((perry.getMotionTimer() < perry.getRollDebounceTime()) && (perry.getCurrentState() != Perry.State.JUMP_BACK_RIGHT) && (perry.getCurrentState() != Perry.State.JUMP_BACK_LEFT)){
+                    perry.setRoll();
+                }
+
+                if (perry.getCurrentState() == Perry.State.RUNNING_RIGHT){
+                    perry.changeState(Perry.State.WALKING_RIGHT);
+                }
+
+                if (perry.getCurrentState() == Perry.State.RUNNING_LEFT){
+                    perry.changeState(Perry.State.WALKING_LEFT);
+                }
+
+                perry.resetMotionTimer();
+
+            case Keys.O:
+                this.shieldPressed = false;
         }
         return true;
     }
@@ -127,7 +154,7 @@ public class PerryInputProcessor implements InputProcessor {
      */
     public boolean[] returnHandledInputs(){
 
-        boolean[] inputArray = new boolean[2];
+        boolean[] inputArray = new boolean[4];
 
         if (this.leftPressed && this.rightPressed){
 
@@ -139,6 +166,9 @@ public class PerryInputProcessor implements InputProcessor {
             inputArray[0] = this.leftPressed;
             inputArray[1] = this.rightPressed;
         }
+
+        inputArray[2] = this.spacePressed;
+        inputArray[3] = this.shieldPressed;
 
         return inputArray;
 

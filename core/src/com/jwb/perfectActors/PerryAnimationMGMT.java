@@ -112,7 +112,9 @@ public class PerryAnimationMGMT {
     private Animation perryStartWalkRight;
     private Animation perryStartWalkLEFT;
     private Animation perryWalkRight;
+    private Animation perryREVWalkRight;
     private Animation perryWalkLEFT;
+    private Animation perryREVWalkLEFT;
     private Animation perryStartRunRight;
     private Animation perryStartRunLEFT;
     private Animation perryRunRight;
@@ -130,6 +132,20 @@ public class PerryAnimationMGMT {
 
     private Animation perryShieldUpLEFT;
     private Animation perryShieldUpRight;
+    private Animation shieldUpForegroundRight;
+    private Animation shieldUpForegroundLEFT;
+    private Animation shieldUpBackgroundRight;
+    private Animation shieldUpBackgroundLEFT;
+    private Animation shieldLoopForegroundRight;
+    private Animation shieldLoopForegroundLEFT;
+    private Animation shieldLoopBackgroundRight;
+    private Animation shieldLoopBackgroundLEFT;
+    private Animation shieldDownForegroundRight;
+    private Animation shieldDownForegroundLEFT;
+    private Animation shieldDownBackgroundRight;
+    private Animation shieldDownBackgroundLEFT;
+    private Animation perryShieldIdleRight;
+    private Animation perryShieldIdleLEFT;
     private Animation perryWalkRightShield;
     private Animation perryWalkLEFTShield;
     private Animation perryREVWalkRightShield;
@@ -187,11 +203,25 @@ public class PerryAnimationMGMT {
     private int shieldUpFrameCount;
     private float shieldUpCycleTime;
 
+    private float shieldONLYUpWidth;
+    private float shieldONLYUpHeight;
+    private int shieldONLYUpFrameCount;
+    private float shieldONLYUpCycleTime;
+
+    private float shieldIdleWidth;
+    private float shieldIdleHeight;
+    private int shieldIdleFrameCount;
+    private float shieldIdleCycleTime;
+
     private float shieldLoopWidth;
     private float shieldLoopHeight;
     private int shieldLoopFrameCount;
     private float shieldLoopCycleTime;
 
+    private float shieldDownWidth;
+    private float shieldDownHeight;
+    private int shieldDownFrameCount;
+    private float shieldDownCycleTime;
 
     private int gravity = -15;
 
@@ -296,7 +326,7 @@ public class PerryAnimationMGMT {
         ////////////////////////////////////////////////////////////////////////////////////////////
 
         walkFrameCount = 8;
-        walkCycleTime = 3f;
+        walkCycleTime = 1f;
         boolean walkIsCycle = true;
 
         ///                                W A L K   L E F T                                     ///
@@ -307,18 +337,18 @@ public class PerryAnimationMGMT {
         ///                              W A L K   R I G H T                                     ///
 
         Texture textureWalkingRight = new Texture("PerryWalkRightCycle.png");
-        perryWalkLEFT = new Animation(new TextureRegion(textureWalkingRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walking LEFT");
+        perryWalkRight = new Animation(new TextureRegion(textureWalkingRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walking RIGHT");
 
 
         ///                        R E V E R S E   W A L K   L E F T                             ///
 
         Texture textureREVWalkingLEFT = new Texture("PerryREVWalkLEFTCycle.png");
-        perryWalkLEFT = new Animation(new TextureRegion(textureREVWalkingLEFT), walkFrameCount, walkCycleTime, walkIsCycle, "Walking LEFT");
+        perryREVWalkLEFT = new Animation(new TextureRegion(textureREVWalkingLEFT), walkFrameCount, walkCycleTime, walkIsCycle, "Walking LEFT");
 
         ///                       R E V E R S E   W A L K   R I G H T                            ///
 
         Texture textureREVWalkingRight = new Texture("PerryREVWalkRightCycle.png");
-        perryWalkLEFT = new Animation(new TextureRegion(textureREVWalkingRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walking LEFT");
+        perryREVWalkRight = new Animation(new TextureRegion(textureREVWalkingRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walking LEFT");
 
 
 
@@ -457,7 +487,7 @@ public class PerryAnimationMGMT {
 
 
         quickAttackFrameCount = 10;
-        quickAttackCycleTime = 1.3f;
+        quickAttackCycleTime = 1f;
         boolean quickAttackIsCycle = false;
 
 
@@ -525,8 +555,8 @@ public class PerryAnimationMGMT {
         ///                              S H I E L D / P A R R Y                                 ///
         ////////////////////////////////////////////////////////////////////////////////////////////
 
-        shieldUpFrameCount = 8;
-        shieldUpCycleTime = 0.5f;
+        shieldUpFrameCount = 4;
+        shieldUpCycleTime = 0.25f;
         boolean shieldUpIsCycle = false;
 
 
@@ -537,13 +567,30 @@ public class PerryAnimationMGMT {
         Texture textureShieldUpRight = new Texture("PerryShieldUpRight.png");
         perryShieldUpRight = new Animation(new TextureRegion(textureShieldUpRight), shieldUpFrameCount, shieldUpCycleTime, shieldUpIsCycle, "Shield Up Right");
 
-        ///                      I D L E   T O   S H I E L D   U P   R I G H T                   ///
+        ///                      I D L E   T O   S H I E L D   U P   L E F T                   ///
 
         Texture textureShieldUpLEFT = new Texture("PerryShieldUpLEFT.png");
-        perryShieldUpLEFT = new Animation(new TextureRegion(textureShieldUpRight), shieldUpFrameCount, shieldUpCycleTime, shieldUpIsCycle, "Shield Up Right");
+        perryShieldUpLEFT = new Animation(new TextureRegion(textureShieldUpLEFT), shieldUpFrameCount, shieldUpCycleTime, shieldUpIsCycle, "Shield Up Left");
+
 
         shieldUpWidth = (textureShieldUpRight.getWidth()/ (float)shieldUpFrameCount);
         shieldUpWidth = textureShieldUpRight.getHeight();
+
+        ////////////////////////////////////////////////////////////////////////////////////////////
+
+        shieldIdleFrameCount = 2;
+        shieldIdleCycleTime = 0.5f;
+        boolean shieldIdleIsCyce = true;
+
+        ///                       I D L E   S H I E L D   U P   R I G H T                        ///
+
+        Texture textureIdleShieldUpRight = new Texture("PerryIdleShieldUpRight.png");
+        perryShieldIdleRight = new Animation(new TextureRegion(textureIdleShieldUpRight), shieldIdleFrameCount,shieldIdleCycleTime, shieldIdleIsCyce, "Shield Idle Right");
+
+        ///                       I D L E   S H I E L D   U P   R I G H T                        ///
+
+        Texture textureIdleShieldUpLEFT = new Texture("PerryIdleShieldUpLEFT.png");
+        perryShieldIdleLEFT = new Animation(new TextureRegion(textureIdleShieldUpLEFT), shieldIdleFrameCount,shieldIdleCycleTime, shieldIdleIsCyce, "Shield Idle Right");
 
         ///                      W A L K I N G   S H I E L D   U P   R I G H T                   ///
 
@@ -553,7 +600,7 @@ public class PerryAnimationMGMT {
         ///                      W A L K I N G   S H I E L D   U P   L E F T                     ///
 
         Texture textureShieldWalkLeft = new Texture("PerryWalkLEFTShield.png");
-        perryWalkLEFTShield = new Animation(new TextureRegion(textureShieldWalkRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walk Right Shield");
+        perryWalkLEFTShield = new Animation(new TextureRegion(textureShieldWalkLeft), walkFrameCount, walkCycleTime, walkIsCycle, "Walk Right Shield");
 
         ///               R E V E R S E   W A L K I N G   S H I E L D   U P   R I G H T          ///
 
@@ -566,12 +613,81 @@ public class PerryAnimationMGMT {
         perryREVWalkLEFTShield = new Animation(new TextureRegion(textureREVShieldWalkRight), walkFrameCount, walkCycleTime, walkIsCycle, "Walk Right Shield");
 
         ////////////////////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////////////////////
+        ///                        S H I E L D    A N I M A T I O N S                            ///
 
-        ///                         S H I E L D   L O O P   R I G H T                            ///
+        shieldONLYUpFrameCount = 8;
+        shieldONLYUpCycleTime = 0.2f;
+        boolean shieldONLYUpIsCycle = false;
+
+        ///                 S H I E L D   U P   R I G H T   F O R E G R O U N D                  ///
+
+        Texture textureShieldUpFR = new Texture("ShieldONLYUpRight.png");
+        shieldUpForegroundRight = new Animation(new TextureRegion(textureShieldUpFR), shieldONLYUpFrameCount, shieldONLYUpCycleTime, shieldONLYUpIsCycle, "Shield Up Fore Right");
+
+        ///                  S H I E L D   U P   L E F T   F O R E G R O U N D                   ///
+
+        Texture textureShieldUpFL = new Texture("ShieldONLYUpLEFT.png");
+        shieldUpForegroundLEFT = new Animation(new TextureRegion(textureShieldUpFL), shieldONLYUpFrameCount, shieldONLYUpCycleTime, shieldONLYUpIsCycle, "Shield Up Fore Left");
+
+        ///                 S H I E L D   U P   R I G H T   B A C K G R O U N D                  ///
+
+        Texture texShieldLR = new Texture("ShieldUpRightBEHIND.png");
+        shieldUpBackgroundRight = new Animation(new TextureRegion(texShieldLR), shieldONLYUpFrameCount, shieldONLYUpCycleTime, shieldONLYUpIsCycle, "Shield Up Back Right");
+
+        ///                  S H I E L D   U P   L E F T   B A C K G R O U N D                   ///
+
+        Texture texShieldLL = new Texture("ShieldUpLEFTBEHIND.png");
+        shieldUpBackgroundLEFT = new Animation(new TextureRegion(texShieldLL), shieldONLYUpFrameCount, shieldONLYUpCycleTime, shieldONLYUpIsCycle, "Shield Up Back Left");
+
+        ///              S H I E L D   L O O P   R I G H T   F O R E G R O U N D                 ///
 
         shieldLoopFrameCount = 9;
-        shieldLoopCycleTime = 1f;
+        shieldLoopCycleTime = 0.9f;
         boolean shieldLoopIsCycle = true;
+
+        Texture texShieldLoopRF = new Texture("PerryShieldLoopRight.png");
+        shieldLoopForegroundRight = new Animation(new TextureRegion(texShieldLoopRF), shieldLoopFrameCount, shieldLoopCycleTime, shieldLoopIsCycle, "Shield Loop Fore Right");
+
+        ///               S H I E L D   L O O P   L E F T   F O R E G R O U N D                  ///
+
+        Texture texShieldLoopLF = new Texture("PerryShieldLoopLEFT.png");
+        shieldLoopForegroundLEFT = new Animation(new TextureRegion(texShieldLoopLF), shieldLoopFrameCount, shieldLoopCycleTime, shieldLoopIsCycle, "Shield Loop Fore Left");
+
+        ///              S H I E L D   L O O P   R I G H T   B A C K G R O U N D                 ///
+
+        Texture texShieldLoopRB = new Texture("ShieldLoopRightBEHIND.png");
+        shieldLoopBackgroundRight = new Animation(new TextureRegion(texShieldLoopRB), shieldLoopFrameCount, shieldLoopCycleTime, shieldLoopIsCycle, "Shield Loop Back Right");
+
+        ///               S H I E L D   L O O P   L E F T   B A C K G R O U N D                  ///
+
+        Texture texShieldLoopLB = new Texture("ShieldLoopLEFTBEHIND.png");
+        shieldLoopBackgroundLEFT = new Animation(new TextureRegion(texShieldLoopLB), shieldLoopFrameCount, shieldLoopCycleTime, shieldLoopIsCycle, "Shield Loop Left Back");
+
+        ///               S H I E L D   D O W N   R I G H T   F O R E G R O U N D                  ///
+
+        shieldDownFrameCount = 6;
+        shieldDownCycleTime = 0.15f;
+        boolean shieldDownIsCycle = false;
+
+        Texture texShieldDownRF = new Texture("ShieldONLYDownRight.png");
+        shieldDownForegroundRight = new Animation(new TextureRegion(texShieldDownRF), shieldDownFrameCount, shieldDownCycleTime, shieldDownIsCycle, "Shield Down Fore Right");
+
+        ///               S H I E L D   D O W N   L E F T   F O R E G R O U N D                  ///
+
+        Texture texShieldDownLF = new Texture("ShieldONLYDownLEFT.png");
+        shieldDownForegroundLEFT = new Animation(new TextureRegion(texShieldDownLF), shieldDownFrameCount, shieldDownCycleTime, shieldDownIsCycle, "Shield Down Fore Left");
+
+        ///              S H I E L D   D O W N   R I G H T   B A C K G R O U N D                 ///
+
+        Texture texShieldDownRB = new Texture("ShieldDownRightBEHIND.png");
+        shieldDownBackgroundRight = new Animation(new TextureRegion(texShieldDownRB), shieldDownFrameCount, shieldDownCycleTime, shieldDownIsCycle, "Shield Down Back Right");
+
+        ///               S H I E L D   D O W N   L E F T   B A C K G R O U N D                  ///
+
+        Texture texShieldDownLB = new Texture("ShieldDownLEFTBEHIND.png");
+        shieldDownBackgroundLEFT = new Animation(new TextureRegion(texShieldDownLB), shieldDownFrameCount, shieldDownCycleTime, shieldDownIsCycle, "Shield Down Back Left");
+
 
         frameVertices shieldFrameVerts0 = new frameVertices(0);
         shieldFrameVerts0.addVertices(173, 0);
@@ -735,6 +851,14 @@ public class PerryAnimationMGMT {
                 this.animationWidth = idleWidth;
                 this.animationHeight = idleHeight;
                 return perryIdleLEFT;
+            case START_WALK_LEFT:
+                this.animationWidth = startToWalkWidth;
+                this.animationHeight = startToWalkHeight;
+                return perryStartWalkLEFT;
+            case START_WALK_RIGHT:
+                this.animationWidth = startToWalkWidth;
+                this.animationHeight = startToWalkHeight;
+                return perryStartWalkRight;
             case START_RUN_LEFT:
                 System.out.println("Returning START_RUN_LEFT animation");
                 this.animationWidth = startToRunWidth;
@@ -745,6 +869,22 @@ public class PerryAnimationMGMT {
                 this.animationWidth = startToRunWidth;
                 this.animationHeight = startToRunHeight;
                 return perryStartRunRight;
+            case WALKING_LEFT:
+                this.animationWidth = walkWidth;
+                this.animationHeight = walkHeight;
+                return perryWalkLEFT;
+            case WALKING_LEFT_SHIELD:
+                this.animationWidth = walkWidth;
+                this.animationHeight = walkHeight;
+                return perryWalkLEFTShield;
+            case WALKING_RIGHT:
+                this.animationWidth = walkWidth;
+                this.animationHeight = walkHeight;
+                return perryWalkRight;
+            case WALKING_RIGHT_SHIELD:
+                this.animationWidth = walkWidth;
+                this.animationHeight = walkHeight;
+                return perryWalkRightShield;
             case RUNNING_LEFT:
                 System.out.println("Returning RUNNING_LEFT animation");
                 this.animationWidth = runWidth;
@@ -795,11 +935,73 @@ public class PerryAnimationMGMT {
                 this.animationWidth = quickAttackWidth;
                 this.animationHeight = quickAttackHeight;
                 return perryQuickAttackRight;
+            case START_SHIELD_RIGHT:
+                System.out.println("Returning SHIELD_UP_RIGHT perry animation");
+                this.animationWidth = shieldUpWidth;
+                this.animationHeight = shieldUpHeight;
+                return perryShieldUpRight;
+            case START_SHIELD_LEFT:
+                System.out.println("Returning SHIELD_UP_LEFT perry animation");
+                this.animationWidth = shieldUpWidth;
+                this.animationHeight = shieldUpHeight;
+                return perryShieldUpLEFT;
+            case IDLE_SHIELD_RIGHT:
+                System.out.println("Returning IDLE_SHIELD_RIGHT perry animation");
+                this.animationWidth = shieldUpWidth;
+                this.animationHeight = shieldUpHeight;
+                return perryShieldIdleRight;
+            case IDLE_SHIELD_LEFT:
+                System.out.println("Returning IDLE_SHIELD_LEFT perry animation");
+                this.animationWidth = shieldUpWidth;
+                this.animationHeight = shieldUpHeight;
+                return perryShieldIdleLEFT;
             default:
                 System.out.println("Returning default (IDLE) animation");
                 this.animationWidth = idleWidth;
                 this.animationHeight = idleHeight;
                 return perryIdle;        }
+    }
+
+    public Animation[] getShieldAnimations(Perry.ShieldState shieldState){
+
+        Animation[] shieldAnimations = new Animation[2];
+
+        switch (shieldState) {
+            case SHIELD_UP_RIGHT:
+//                System.out.println("SHIELD: Returning shield up right animation");
+                shieldAnimations[0] = shieldUpForegroundRight;
+                shieldAnimations[1] = shieldUpBackgroundRight;
+                return shieldAnimations;
+            case SHIELD_UP_LEFT:
+//                System.out.println("SHIELD: Returning shield up left animation");
+                shieldAnimations[0] = shieldUpForegroundLEFT;
+                shieldAnimations[1] = shieldUpBackgroundLEFT;
+                return shieldAnimations;
+            case SHIELD_CYCLE_RIGHT:
+//                System.out.println("SHIELD: Returning shield cycle right animation");
+                shieldAnimations[0] = shieldLoopForegroundRight;
+                shieldAnimations[1] = shieldLoopBackgroundRight;
+                return shieldAnimations;
+            case SHIELD_CYCLE_LEFT:
+//                System.out.println("SHIELD: Returning shield cycle left animation");
+                shieldAnimations[0] = shieldLoopForegroundLEFT;
+                shieldAnimations[1] = shieldLoopBackgroundLEFT;
+                return shieldAnimations;
+            case SHIELD_DOWN_RIGHT:
+//                System.out.println("SHIELD: Returning shield down right animation");
+                shieldAnimations[0] = shieldDownForegroundRight;
+                shieldAnimations[1] = shieldDownBackgroundRight;
+                return shieldAnimations;
+            case SHIELD_DOWN_LEFT:
+//                System.out.println("SHIELD: Returning shield down left animation");
+                shieldAnimations[0] = shieldDownForegroundLEFT;
+                shieldAnimations[1] = shieldDownBackgroundLEFT;
+                return shieldAnimations;
+            case NO_SHIELD:
+                return null;
+            default:
+                return null;
+        }
     }
 
 

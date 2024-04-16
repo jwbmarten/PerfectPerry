@@ -2,6 +2,7 @@ package com.jwb.perfectActors;
 
 import static com.jwb.perfectWorld.TileType.TILE_SIZE;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
@@ -21,11 +22,19 @@ public class Perry {
 
     boolean isAttacking;
 
+    boolean shieldUp;
+
     private float repositionHorizontal;
 
     private float motionTimer = 0f; // initialize a float to track time for motion delays
 
-    private static final float STATE_TRANSITION_DEBOUNCE_TIME = 0.1f; // 100 ms debounce time to prevent accidental state switching
+    private float shieldTimer = 0f;
+
+    private int shieldOffsetRight = 70;
+
+    private int shieldOffsetLeft = 0;
+
+    private static final float ROLL_DEBOUNCE_TIME = 0.18f; // 100 ms debounce time to prevent accidental state switching
 
     private float idleTimer = 0f;
 
@@ -34,6 +43,8 @@ public class Perry {
     private static final float RUN_RIGHT_LOOP_DELAY = 0.4f; // accounts for length of idle to running animation
 
     private int maxRunSpeed = 10;
+
+    private int maxWalkSpeed = 5;
 
     //static int to represent gravity
     private static final int GRAVITY = -15;
@@ -46,7 +57,6 @@ public class Perry {
     private Vector3 velocity;
 
     private float newVelocityX;
-
 
     //this will be Perry's hitbox
     private Rectangle bounds;
@@ -66,6 +76,8 @@ public class Perry {
 
     private State currentState ;
 
+    private ShieldState shieldState ;
+
     //track if Perry is colliding with anything
     public boolean colliding;
 
@@ -73,34 +85,50 @@ public class Perry {
 
     public enum State {
         IDLE,
+        IDLE_SHIELD_RIGHT,
         IDLE_LEFT,
+        IDLE_SHIELD_LEFT,
+        START_SHIELD_LEFT,
         START_WALK_LEFT,
         START_RUN_LEFT,
         WALKING_LEFT,
+        WALKING_LEFT_SHIELD,
         REVERSE_WALKING_LEFT,
+        REVERSE_WALKING_LEFT_SHIELD,
         RUNNING_LEFT,
         CLING_LEFT,
         ROLLING_LEFT,
         JUMP_BACK_LEFT,
         QUICK_ATTACK_LEFT,
-        SHIELD_UP_LEFT,
-        SHIELD_CYCLE_LEFT,
         START_WALK_RIGHT,
         START_RUN_RIGHT,
+        START_SHIELD_RIGHT,
         WALKING_RIGHT,
+        WALKING_RIGHT_SHIELD,
         REVERSE_WALKING_RIGHT,
+        REVERSE_WALKING_RIGHT_SHIELD,
         RUNNING_RIGHT,
         CLING_RIGHT,
         ROLLING_RIGHT,
         JUMP_BACK_RIGHT,
         QUICK_ATTACK_RIGHT,
-        SHIELD_UP_RIGHT,
-        SHIELD_CYCLE_RIGHT
     }
+
+    public enum ShieldState {
+        SHIELD_UP_RIGHT,
+        SHIELD_CYCLE_RIGHT,
+        SHIELD_DOWN_RIGHT,
+        SHIELD_UP_LEFT,
+        SHIELD_CYCLE_LEFT,
+        SHIELD_DOWN_LEFT,
+        NO_SHIELD
+    }
+
     public Perry(int x, int y, TiledGameMap currentLevel){
 
         this.animationManager = new PerryAnimationMGMT();
         this.activeAnimation = animationManager.getAnimation(State.IDLE);
+        this.shieldState = ShieldState.NO_SHIELD;
         currentState = State.IDLE; // default state
 
         //updateAnimation();// initial aniamtion setup
@@ -123,10 +151,22 @@ public class Perry {
 
     }
 
-    public void update(float dt, boolean leftPressed, boolean rightPressed){
+    public void update(float dt, boolean leftPressed, boolean rightPressed, boolean spacePressed, boolean shieldPressed){
 
         if (leftPressed && rightPressed){
         System.out.println("Perry Update.   Left Pressed:  " + leftPressed + " Right Pressed:   " + rightPressed);}
+
+        if (spacePressed && (motionTimer < ROLL_DEBOUNCE_TIME)){
+            motionTimer += Gdx.graphics.getDeltaTime();
+        }
+
+//        if ((velocity.x < -maxRunSpeed) || (velocity.x > maxRunSpeed)){
+//            System.out.println("SOMETHINGS FUCKY!");
+//        }
+
+        if (shieldPressed){
+            shieldUp = true;
+        } else { shieldUp = false;}
 
         //////////////////////////////////////////////////////////////////////
         // STAGE 1: here we need to consider the possible user inputs, but also
@@ -182,11 +222,11 @@ public class Perry {
             handleGravity(dt);
         }
 
-
-
         // If not moving left or right, slow down to 0
 
         if ((!leftPressed && !rightPressed) && (canMove)) {
+
+            newVelocityX = 0;
 
             if (Math.abs(velocity.x) < 0.1f) {
                 velocity.x = 0;
@@ -199,7 +239,16 @@ public class Perry {
             }
         }
 
-        activeAnimation.update(dt);
+        if (shieldPressed || (shieldState != ShieldState.NO_SHIELD)){
+            handleShield(dt);
+        }
+
+        if (activeAnimationForeground != null){
+            activeAnimationForeground.update(dt);
+            activeAnimationBehind.update(dt);
+        }
+
+         activeAnimation.update(dt);
 
         // Update position based on velocity
         position.add(velocity.x, velocity.y, 0);
@@ -208,83 +257,349 @@ public class Perry {
 
     private void updateAnimation() {
         this.activeAnimation = animationManager.getAnimation(currentState);
-        System.out.println(activeAnimation.name + "  " + activeAnimation.frame);
+//        System.out.println(activeAnimation.name + "  " + activeAnimation.frame);
     }
 
-    public void chooseLeftMoveState()
-    {
+    public void chooseLeftMoveState() {
 
-//        System.out.println("Starting method choose left move state");
+        // IF facing right
 
+        if (rightMove && canMove){
 
-        // if the current state is idle set state to start running right
-        if ((rightMove) || (currentState == State.IDLE_LEFT) ){
-            activeAnimation.reset();
-            velocity.x = 0;
-            changeState(State.START_RUN_LEFT);
-            canMove = true;
-//            System.out.println("State changed from idle or moving left to start run left");
-            leftMove = true;
             rightMove = false;
+            leftMove = true;
+
+                switch (currentState) {
+                    case IDLE_SHIELD_RIGHT:
+                        changeState(State.WALKING_LEFT_SHIELD);
+                        changeShieldState(ShieldState.SHIELD_CYCLE_LEFT);
+                        break;
+                    case START_SHIELD_RIGHT:
+                        changeState(State.START_WALK_LEFT);
+
+                        break;
+                    case WALKING_RIGHT_SHIELD:
+                        changeState(State.WALKING_LEFT_SHIELD);
+                        changeShieldState(ShieldState.SHIELD_CYCLE_LEFT);
+                        break;
+                    default:
+                        changeState(State.START_WALK_LEFT);
+
+                }
+            velocity.x = 0;
+            newVelocityX = 0;
+            return;
         }
 
+        /// IF ALREADY MOVING LEFT
 
-
-        //if the current state is start running right and the animation is complete, set the state to running right
-        if ((currentState == State.START_RUN_LEFT) && activeAnimation.isComplete()){
-            changeState(State.RUNNING_LEFT);
-            canMove = true;
+        switch(currentState) {
+            case IDLE_LEFT:
+                changeState(State.START_WALK_LEFT);
+                break;
+            case IDLE_SHIELD_LEFT:
+                changeState(State.WALKING_LEFT_SHIELD);
+                break;
+            case START_WALK_LEFT:
+                if (activeAnimation.isComplete()){
+                    changeState(State.WALKING_LEFT);
+                    canMove = true;}
+                break;
+            case WALKING_LEFT:
+                if (shieldUp){
+                    changeState(State.WALKING_LEFT_SHIELD);}
+                if ((motionTimer > ROLL_DEBOUNCE_TIME) && this.canMove){
+                    changeState(State.RUNNING_LEFT);}
+                break;
+            case WALKING_LEFT_SHIELD:
+                if (!shieldUp){
+                    changeState(State.WALKING_LEFT);}
+                break;
         }
 
+////        System.out.println("Starting method choose left move state");
+//
+//        // if the current state is idle set state to start running right
+//        if ((rightMove) || (currentState == State.IDLE_LEFT) ){
+//            activeAnimation.reset();
+//            velocity.x = 0;
+//            newVelocityX = 0;
+//            if (shieldUp){
+//                changeState(State.WALKING_LEFT_SHIELD);
+//            } else{
+//                changeState(State.START_WALK_LEFT);}
+//            canMove = true;
+////            System.out.println("State changed from idle or moving left to start run left");
+//            leftMove = true;
+//            rightMove = false;
+//        }
+//
+//        if ((currentState == State.WALKING_LEFT) && (shieldUp)){
+//            changeState(State.WALKING_LEFT_SHIELD);
+//        }
+//
+//        if ((currentState == State.WALKING_LEFT_SHIELD) && (!shieldUp)){
+//            changeState(State.WALKING_LEFT);
+//        }
+//
+//
+//        //if the current state is start running right and the animation is complete, set the state to running right
+//        if ((currentState == State.START_WALK_LEFT) && activeAnimation.isComplete()){
+//            changeState(State.WALKING_LEFT);
+//            canMove = true;
+//        }
+//
+//        if ((motionTimer > ROLL_DEBOUNCE_TIME) && this.canMove){
+//            changeState(State.RUNNING_LEFT);
+//        }
 
     }
 
-    public void chooseRightMoveState() {
+    public void chooseRightMoveState(State currentState) {
 
+        if (leftMove && canMove){
 
-        // if the current state is idle set state to start running right
-        if ((leftMove) || (currentState == State.IDLE) ){
-            activeAnimation.reset();
-            velocity.x = 0;
-            changeState(State.START_RUN_RIGHT);
-            canMove = true;
-//            System.out.print("State changed from idle or moving left to start run right");
             leftMove = false;
             rightMove = true;
+
+            switch (currentState){
+                case IDLE_SHIELD_LEFT:
+                    changeState(State.WALKING_RIGHT_SHIELD);
+                    changeShieldState(ShieldState.SHIELD_CYCLE_RIGHT);
+                    break;
+                case START_SHIELD_LEFT:
+                    changeState(State.START_WALK_RIGHT);
+
+                    break;
+                case WALKING_LEFT_SHIELD:
+                    changeState(State.WALKING_RIGHT_SHIELD);
+                    changeShieldState(ShieldState.SHIELD_CYCLE_RIGHT);
+                    break;
+                default:
+                    changeState(State.START_WALK_RIGHT);
+
+            }
+
+            velocity.x = 0;
+            newVelocityX = 0;
+            return;
         }
 
-
-
-        //if the current state is start running right and the animation is complete, set the state to running right
-        if ((currentState == State.START_RUN_RIGHT) && activeAnimation.isComplete()){
-
-            changeState(State.RUNNING_RIGHT);
-            canMove = true;
+        switch(currentState) {
+            case IDLE:
+                changeState(State.START_WALK_RIGHT);
+                break;
+            case IDLE_SHIELD_RIGHT:
+                changeState(State.WALKING_RIGHT_SHIELD);
+                break;
+            case START_WALK_RIGHT:
+                if (activeAnimation.isComplete()){
+                    changeState(State.WALKING_RIGHT);
+                    canMove = true;}
+                break;
+            case WALKING_RIGHT:
+                if (shieldUp){
+                    changeState(State.WALKING_RIGHT_SHIELD);}
+                if ((motionTimer > ROLL_DEBOUNCE_TIME) && this.canMove){
+                    changeState(State.RUNNING_RIGHT);}
+                break;
+            case WALKING_RIGHT_SHIELD:
+                if (!shieldUp){
+                    changeState(State.WALKING_RIGHT);}
+                break;
         }
+
+//        // if the current state is idle set state to start running right
+//        if ((leftMove) || (currentState == State.IDLE) || (currentState == State.IDLE_SHIELD_RIGHT )){
+//            activeAnimation.reset();
+//            velocity.x = 0;
+//            newVelocityX = 0;
+//
+//            if (shieldUp){
+//                changeState(State.WALKING_RIGHT_SHIELD);
+//            } else{
+//            changeState(State.START_WALK_RIGHT);}
+//            canMove = true;
+////            System.out.print("State changed from idle or moving left to start run right");
+//            leftMove = false;
+//            rightMove = true;
+//        }
+//
+//        if ((currentState == State.WALKING_RIGHT) && (shieldUp)){
+//            changeState(State.WALKING_RIGHT_SHIELD);
+//        }
+//
+//        if ((currentState == State.WALKING_RIGHT_SHIELD) && (!shieldUp)){
+//            changeState(State.WALKING_RIGHT);
+//        }
+//
+//
+//        //if the current state is start walk right and the animation is complete, set the state to walking right
+//        if ((currentState == State.START_WALK_RIGHT) && activeAnimation.isComplete()){
+//
+//            changeState(State.WALKING_RIGHT);
+//            canMove = true;
+//        }
+//
+//        if ((motionTimer > ROLL_DEBOUNCE_TIME) && this.canMove){
+//            changeState(State.RUNNING_RIGHT);
+//        }
 
 
 
     }
 
     public void changeState(State newState) {
+
         if (this.currentState != newState) {
-            System.out.println(activeAnimation.name + "  " + activeAnimation.frame);
+//            System.out.println(activeAnimation.name + "  " + activeAnimation.frame);
             this.currentState = newState;
             System.out.println("State changed to" + newState);
             activeAnimation.reset();
             updateAnimation();
+        }
 
+        switch (newState) {
+            case START_WALK_RIGHT:
+                canMove = true;
+                leftMove = false;
+                rightMove = true;
+            break;
+            case START_WALK_LEFT:
+                canMove = true;
+                leftMove = true;
+                rightMove = false;
+            break;
+        }
+    }
 
+    public void changeShieldState(ShieldState newState) {
+        if (this.shieldState != newState) {
+
+            if (activeAnimationForeground != null){
+            activeAnimationForeground.reset();
+            activeAnimationBehind.reset();}
+
+            this.shieldState = newState;
+
+            if (animationManager.getShieldAnimations(shieldState) != null) {
+                activeAnimationForeground = animationManager.getShieldAnimations(shieldState)[0];
+                activeAnimationBehind = animationManager.getShieldAnimations(shieldState)[1];
+            } else {
+                activeAnimationForeground = null;
+                activeAnimationBehind = null;
+            }
         }
     }
 
     public void perryCantStop(float dt){
 
         if (currentState == State.ROLLING_RIGHT){
-
             handleRoll(dt);
         }
     }
+
+    public void handleShield(float dt){
+
+        if (shieldTimer < 1f){
+            shieldTimer += dt;
+        }
+
+        switch (shieldState) {
+            case NO_SHIELD:
+                if (rightMove) {
+                    changeShieldState(ShieldState.SHIELD_UP_RIGHT);
+                }
+                if (leftMove) {
+                    changeShieldState(ShieldState.SHIELD_UP_LEFT);
+                }
+                break;
+            case SHIELD_UP_RIGHT:
+                if (activeAnimationForeground.isComplete()) {
+                    changeShieldState(ShieldState.SHIELD_CYCLE_RIGHT);
+                }
+                break;
+            case SHIELD_UP_LEFT:
+                if (activeAnimationForeground.isComplete()) {
+                    changeShieldState(ShieldState.SHIELD_CYCLE_LEFT);
+                    break;
+                }
+        }
+
+//        // IF THERE IS NO SHIELD ANIMATION YET, START IT
+//        if (shieldState == ShieldState.NO_SHIELD){
+//            if (rightMove){
+//                changeShieldState(ShieldState.SHIELD_UP_RIGHT);
+//            }
+//
+//            if (leftMove){
+//                changeShieldState(ShieldState.SHIELD_UP_LEFT);
+//            }
+//        }
+//
+//        // IF SHIELD START ANIMATIONS ARE COMPLETE, GO TO SHIELD LOOPS
+//        if ((shieldState == ShieldState.SHIELD_UP_RIGHT) && (activeAnimationForeground.isComplete())){
+//            changeShieldState(ShieldState.SHIELD_CYCLE_RIGHT);
+//        }
+//
+//        if ((shieldState == ShieldState.SHIELD_UP_LEFT) && (activeAnimationForeground.isComplete())){
+//            changeShieldState(ShieldState.SHIELD_CYCLE_LEFT);
+//        }
+
+        ///////////////////////////////////////////////////////////////////////////////
+        /////// PERRY'S SHIELDING ANIMATIONS
+
+        switch (currentState){
+            case IDLE:
+                changeState(State.START_SHIELD_RIGHT);
+                break;
+            case IDLE_LEFT:
+                changeState(State.START_SHIELD_LEFT);
+                break;
+            case START_SHIELD_RIGHT:
+                if (activeAnimation.isComplete()){
+                changeState(State.IDLE_SHIELD_RIGHT);}
+                break;
+            case START_SHIELD_LEFT:
+                if (activeAnimation.isComplete()){
+                changeState(State.IDLE_SHIELD_LEFT);}
+                break;
+        }
+
+
+//        if (currentState == State.IDLE){
+//            changeState(State.START_SHIELD_RIGHT);
+//        }
+//
+//        if (currentState == State.IDLE_LEFT){
+//            changeState(State.START_SHIELD_LEFT);
+//        }
+//
+//        if ((currentState == State.START_SHIELD_RIGHT) && (activeAnimation.isComplete())){
+//            changeState(State.IDLE_SHIELD_RIGHT);
+//        }
+//
+//        if ((currentState == State.START_SHIELD_LEFT) && (activeAnimation.isComplete())){
+//            changeState(State.IDLE_SHIELD_LEFT);
+//        }
+
+        if (!shieldUp){
+
+            if (rightMove){
+                changeShieldState(ShieldState.SHIELD_DOWN_RIGHT);
+            }
+
+            if (leftMove){
+                changeShieldState(ShieldState.SHIELD_DOWN_LEFT);
+            }
+
+            if (( (shieldState == ShieldState.SHIELD_DOWN_RIGHT) && (activeAnimationForeground.isComplete()) ) || ( (shieldState == ShieldState.SHIELD_DOWN_LEFT) && (activeAnimationForeground.isComplete()) )){
+                changeShieldState(ShieldState.NO_SHIELD);
+            }
+        }
+
+    }
+
 
     public void handleRoll(float dt){
 
@@ -299,18 +614,16 @@ public class Perry {
 
             //and user is still pressing left, transition to running left
             if ((leftMove)) {
-                changeState(State.RUNNING_LEFT);
+                changeState(State.WALKING_LEFT);
                 return;
             }
 
             //if the user is pressing right, transition to start run right
             if ((rightMove)) {
-                changeState(State.START_RUN_RIGHT);
+                changeState(State.START_WALK_RIGHT);
             }
-
-
-
-        }///////////////////////////////////////////////////////////////////////////////////////////
+        }
+        ///////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -323,12 +636,12 @@ public class Perry {
 
             //and user is still pressing left, transition to running right
             if (rightMove){
-            changeState(State.RUNNING_RIGHT);
+                changeState(State.WALKING_RIGHT);
             return;}
 
             //if the user is pressing left, transition to start run left
             if (leftMove) {
-                changeState(State.START_RUN_LEFT);
+                changeState(State.START_WALK_LEFT);
             }
 
 
@@ -374,19 +687,11 @@ public class Perry {
 
             float tileBoundary = (float) (Math.floor(potentialX / TILE_SIZE) * TILE_SIZE);
             position.x = tileBoundary - bounds.getWidth(); // -1 for a small buffer
-
         }
-
         }
-
 
     }
 
-    public void handleShield(){
-
-//        if (currentState != State.SHIELD_UP_LEFT) && (currentState != State.SHIELD_CYCLE_LEFT) && (currentState != State.SHIELD_UP_RIGHT) && (currentState != State.SHIELD_CYCLE_LEFT)
-
-    }
 
     public void handleJumpBack(float dt){
 
@@ -467,6 +772,8 @@ public class Perry {
     public void setRoll(){
 
 //        System.out.println("setting roll'");
+
+
 
         if ((currentState!= State.ROLLING_RIGHT) && (currentState != State.ROLLING_LEFT)) {
 
@@ -591,10 +898,18 @@ public class Perry {
 
     public void handleMoveLeft(float dt){
 
-
         chooseLeftMoveState();
 
-        newVelocityX = Math.max((velocity.x * 1.5f) - 1.5f * dt , -maxRunSpeed); // Desired velocity increment
+        if (currentState == State.IDLE_LEFT){
+            newVelocityX = 0;
+        }
+
+        if ((currentState == State.WALKING_LEFT) || (currentState == State.WALKING_LEFT_SHIELD)){
+            newVelocityX = Math.max((velocity.x * 1.5f) - 1.5f * dt , -maxWalkSpeed);}
+
+        else if (currentState == State.RUNNING_LEFT){
+        newVelocityX = Math.max((velocity.x * 1.5f) - 1.5f * dt , -maxRunSpeed);} // Desired velocity increment
+
 
         float xPosIncrement = newVelocityX * dt;
 
@@ -628,9 +943,18 @@ public class Perry {
 
     public void handleMoveRight(float dt) {
 
-        chooseRightMoveState();
+        chooseRightMoveState(currentState);
 
-        newVelocityX = Math.min((velocity.x * 1.5f) + 1.5f * dt , maxRunSpeed); // Desired velocity increment
+        if (currentState == State.IDLE){
+            newVelocityX = 0;
+        }
+
+        if ((currentState == State.WALKING_RIGHT) || (currentState == State.WALKING_RIGHT_SHIELD)){
+            newVelocityX = Math.min((velocity.x * 1.5f) + 1.5f * dt , maxWalkSpeed);}
+
+        else if (currentState == State.RUNNING_RIGHT){
+            newVelocityX = Math.min((velocity.x * 1.5f) + 1.5f * dt , maxRunSpeed);} // Desired velocity increment
+
 
         float xPosIncrement = newVelocityX * dt;
 
@@ -686,6 +1010,23 @@ public class Perry {
 
         }
 
+        if (currentState == State.WALKING_RIGHT_SHIELD){
+            activeAnimation.reset();
+            changeState(State.IDLE_SHIELD_RIGHT);
+            canMove = true;
+            //handleIdle(dt);
+            System.out.println("State changed from walk right shield to idle shield right");
+            bounds = new Rectangle(position.x, position.y, animationManager.getIdleWidth(), animationManager.getIdleHeight());
+        }
+
+        if (currentState == State.WALKING_LEFT_SHIELD){
+            activeAnimation.reset();
+            changeState(State.IDLE_SHIELD_LEFT);
+            canMove = true;
+            //handleIdle(dt);
+            System.out.println("State changed from walk left shield to idle shield left");
+            bounds = new Rectangle(position.x, position.y, animationManager.getIdleWidth(), animationManager.getIdleHeight());
+        }
 
 
         // Check that current (RIGHT ONLY FOR NOW) bounds not in collidable tile
@@ -693,20 +1034,18 @@ public class Perry {
         if (currentLevel.isTileCollidable(position.x + (float) bounds.width, position.y)){
 
 //            System.out.println("Idle state detected collision!");
-
             float tileBoundary = (float) (Math.floor(position.x / TILE_SIZE) * TILE_SIZE);
-
             repositionHorizontal = 0f;
-
-
         }
 
-            if ((currentState != State.IDLE) && (currentState != State.IDLE_LEFT)) {
+            if ((currentState != State.IDLE) && (currentState != State.IDLE_LEFT) && (!shieldUp)) {
 
                 if (leftMove){
                     changeState(State.IDLE_LEFT);
+                    velocity.x = 0;
                 } else{
                 changeState(State.IDLE);}
+                velocity.x = 0;
                 canMove = true;
             }
 
@@ -751,10 +1090,19 @@ public class Perry {
     }
 
     public TextureRegion getTextureForeground(){
+
+        if (activeAnimationForeground == null){
+            return null;
+        }
         return activeAnimationForeground.getFrame();
     }
 
     public TextureRegion getTextureBehind(){
+
+        if (activeAnimationBehind == null){
+            return null;
+        }
+
         return activeAnimationBehind.getFrame();
     }
 
@@ -771,6 +1119,48 @@ public class Perry {
     public Polygon getAtkHitbox() {return atkHitbox;}
 
     public boolean getIsAttacking() {return isAttacking;}
+
+    public float getMotionTimer() {
+        return motionTimer;
+    }
+    public void resetMotionTimer(){
+        this.motionTimer = 0;
+    }
+
+    public float getRollDebounceTime(){
+        return ROLL_DEBOUNCE_TIME;
+    }
+
+    public int getShieldOffsetRight(Perry.State state){
+
+//        switch (state) {
+//
+//            case IDLE_SHIELD_RIGHT:
+//                return 70;
+//            case WALKING_RIGHT_SHIELD:
+//                return 70;
+//            default:
+//                return 0;
+//        }
+
+        return shieldOffsetRight;
+
+    }
+
+    public int getShieldOffsetLeft(Perry.State state){
+
+//        switch (state) {
+//
+//            case IDLE_SHIELD_LEFT:
+//                return 30;
+//            case WALKING_LEFT_SHIELD:
+//                return 0;
+//            default:
+//                return 0;
+//        }
+
+        return shieldOffsetLeft;
+    }
 
     public void dispose() { System.out.println("Perry Disposed!");} //texture.dispose();
 

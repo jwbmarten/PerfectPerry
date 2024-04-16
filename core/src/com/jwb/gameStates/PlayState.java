@@ -124,7 +124,7 @@ public class PlayState extends State {
         // Ensure the camera updates its matrixes
         cam.update();
 
-        perry.update(dt, inputProcessor.returnHandledInputs()[0], inputProcessor.returnHandledInputs()[1]);
+        perry.update(dt, inputProcessor.returnHandledInputs()[0], inputProcessor.returnHandledInputs()[1], inputProcessor.returnHandledInputs()[2], inputProcessor.returnHandledInputs()[3]);
 
         if (perry.getIsAttacking()){
             System.out.println("Perry attacking!");
@@ -161,10 +161,23 @@ public class PlayState extends State {
         sb.begin();
 
         //draw Perry
+        if (perry.getTextureBehind() != null){
+            if (perry.isRightMove()){
+                sb.draw(perry.getTextureBehind(), perry.getPosition().x + perry.getShieldOffsetRight(perry.getCurrentState()), perry.getPosition().y);}
+            else {
+                sb.draw(perry.getTextureBehind(), perry.getPosition().x - perry.getShieldOffsetLeft(perry.getCurrentState()), perry.getPosition().y);}
+
+        }
         sb.draw(perry.getTexture(), perry.getPosition().x, perry.getPosition().y);
 
         sb.draw(yellowFellow.getTexture(), yellowFellow.getPosition().x, yellowFellow.getPosition().y);
 
+        if (perry.getTextureForeground() != null){
+            if (perry.isRightMove()){
+                sb.draw(perry.getTextureForeground(), perry.getPosition().x + perry.getShieldOffsetRight(perry.getCurrentState()), perry.getPosition().y);}
+            else {
+                sb.draw(perry.getTextureForeground(), perry.getPosition().x - perry.getShieldOffsetLeft(perry.getCurrentState()), perry.getPosition().y);}
+        }
 
         sb.end();
 
