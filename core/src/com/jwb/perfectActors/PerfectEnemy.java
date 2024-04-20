@@ -1,6 +1,7 @@
 package com.jwb.perfectActors;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Intersector;
 import com.badlogic.gdx.math.Polygon;
@@ -102,6 +103,9 @@ public abstract class PerfectEnemy {
 
     //enemy name
     private String enemyType;
+
+    int healthPoints;
+    int stancePoints;
 
     // is enemy facing/moving left or right
     boolean leftMove;
@@ -223,5 +227,15 @@ public abstract class PerfectEnemy {
     abstract void handleGravity(float dt);
 
     public TextureRegion getTexture(){return activeAnimation.getFrame();}
+
+    public boolean isDestroyed(){
+        return healthPoints <= 0;
+    }
+
+    public void render(SpriteBatch sb){
+        sb.draw(this.getTexture(), this.getPosition().x, this.getPosition().y);
+    }
+
+
 
 }

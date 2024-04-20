@@ -10,6 +10,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.ExtendViewport;
 import com.jwb.perfect.PerryInputProcessor;
+import com.jwb.perfectActors.EnemyManager;
+import com.jwb.perfectActors.PerfectEnemy;
 import com.jwb.perfectActors.Perry;
 import com.jwb.perfectActors.YellowFellow;
 import com.jwb.perfectWorld.GameMap;
@@ -33,6 +35,8 @@ public class PlayState extends State {
 
     private Texture demolvl;
 
+    Texture crosshair = new Texture("crosshair.png");
+
     private Vector2 groundPos1, groundPos2;
 
     TiledGameMap gameMap;
@@ -42,6 +46,10 @@ public class PlayState extends State {
     private float lerpFactor = 0.5f; // Adjust this value to control the speed of the camera interpolation
 
     private ShapeRenderer shapeRenderer;
+
+    private EnemyManager enemyManager;
+
+
 
 
 
@@ -60,7 +68,9 @@ public class PlayState extends State {
         perry = new Perry(1000, 800, gameMap);
 
         //initialize Yellow fellow
-        yellowFellow = new YellowFellow( 1600, 800, gameMap);
+//        yellowFellow = new YellowFellow( 1600, 800, gameMap);
+        this.enemyManager = new EnemyManager(gameMap, perry);
+//        enemyManager.initializeEnemies();
 
         shapeRenderer = new ShapeRenderer();
 
@@ -83,7 +93,7 @@ public class PlayState extends State {
         // 21:9 aspect ratio
 //        viewport = new ExtendViewport(2800, 1200, cam); // Initialize ExtendViewport with desired world width and height
 
-        inputProcessor = new PerryInputProcessor(perry);
+        inputProcessor = new PerryInputProcessor(perry, this);
         Gdx.input.setInputProcessor(inputProcessor);
 
     }
@@ -128,13 +138,15 @@ public class PlayState extends State {
 
         if (perry.getIsAttacking()){
             System.out.println("Perry attacking!");
-            if(yellowFellow.checkIfHit(perry.getAtkHitboxBounds(), perry.getAtkHitbox())){
+            for (PerfectEnemy enemy: enemyManager.getEnemies()){
+            if(enemy.checkIfHit(perry.getAtkHitboxBounds(), perry.getAtkHitbox())){
                 System.out.println("Yellow Fellow HIT!");
-                yellowFellow.takeDamage();
-            }
+                enemy.takeDamage();
+            }}
         }
 
-        yellowFellow.update(dt, perry.getPosition());
+//        yellowFellow.update(dt, perry.getPosition());
+        enemyManager.update(dt);
 
         viewport.update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -147,6 +159,8 @@ public class PlayState extends State {
 
             inputProcessor.setGetCameraPosition(false);
         }
+
+
     }
 
 
@@ -170,13 +184,20 @@ public class PlayState extends State {
         }
         sb.draw(perry.getTexture(), perry.getPosition().x, perry.getPosition().y);
 
-        sb.draw(yellowFellow.getTexture(), yellowFellow.getPosition().x, yellowFellow.getPosition().y);
+//        sb.draw(yellowFellow.getTexture(), yellowFellow.getPosition().x, yellowFellow.getPosition().y);
+
+        enemyManager.render(sb);
 
         if (perry.getTextureForeground() != null){
             if (perry.isRightMove()){
                 sb.draw(perry.getTextureForeground(), perry.getPosition().x + perry.getShieldOffsetRight(perry.getCurrentState()), perry.getPosition().y);}
             else {
                 sb.draw(perry.getTextureForeground(), perry.getPosition().x - perry.getShieldOffsetLeft(perry.getCurrentState()), perry.getPosition().y);}
+        }
+
+        if (perry.isLockedOn()) {
+            Vector3 enemyPos = perry.getLockedEnemy().getPosition();
+            sb.draw(crosshair, enemyPos.x + perry.getLockedEnemy().getTexture().getRegionWidth() / 2 - crosshair.getWidth() / 2, enemyPos.y + perry.getLockedEnemy().getTexture().getRegionHeight() / 2 - crosshair.getHeight() / 2);
         }
 
         sb.end();
@@ -195,7 +216,7 @@ public class PlayState extends State {
             shapeRenderer.rect(perry.getAtkHitboxBounds().getX(), perry.getAtkHitboxBounds().y, perry.getAtkHitboxBounds().width, perry.getAtkHitboxBounds().height);
         shapeRenderer.polygon(perry.atkHitbox.getTransformedVertices());}
 
-        shapeRenderer.polygon(yellowFellow.getYelFelBodyVerts());
+//        shapeRenderer.polygon(yellowFellow.getYelFelBodyVerts());
 
         // End ShapeRenderer
         shapeRenderer.end();
@@ -215,5 +236,28 @@ public class PlayState extends State {
         viewport.update(width, height); // Ensure viewport updates on resize
     }
 
+    public void handleLockOn() {
+
+        if (perry.isLockedOn()){
+            perry.unlock();
+            return;
+        }
+
+        //max lock on distance
+        float minDistance = 800f;
+        PerfectEnemy closestEnemy = null;
+        Vector3 perryPosition = perry.getPosition();
+
+        for (PerfectEnemy enemy : enemyManager.getEnemies()) { // Assume you have a list of enemies
+            float distance = Vector3.dst(perryPosition.x, perryPosition.y, 0, enemy.getPosition().x, enemy.getPosition().y, 0);
+            if (distance < minDistance && ((perry.isRightMove() && enemy.getPosition().x > perryPosition.x) || (!perry.isRightMove() && enemy.getPosition().x < perryPosition.x))) {
+                minDistance = distance;
+                closestEnemy = enemy;
+            }
+        }
+        perry.lockOn(closestEnemy);
+        System.out.println(closestEnemy + " locked on to!");
+
+    }
 
 }

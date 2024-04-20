@@ -873,18 +873,34 @@ public class PerryAnimationMGMT {
                 this.animationWidth = walkWidth;
                 this.animationHeight = walkHeight;
                 return perryWalkLEFT;
+            case REVERSE_WALKING_LEFT:
+                this.animationWidth = walkWidth;
+                this.animationHeight = walkHeight;
+                return perryREVWalkLEFT;
             case WALKING_LEFT_SHIELD:
                 this.animationWidth = walkWidth;
                 this.animationHeight = walkHeight;
                 return perryWalkLEFTShield;
+            case REVERSE_WALKING_LEFT_SHIELD:
+                this.animationWidth = walkWidth;
+                this.animationHeight = walkHeight;
+                return perryREVWalkLEFTShield;
             case WALKING_RIGHT:
                 this.animationWidth = walkWidth;
                 this.animationHeight = walkHeight;
                 return perryWalkRight;
+            case REVERSE_WALKING_RIGHT:
+                this.animationWidth = walkWidth;
+                this.animationHeight = walkHeight;
+                return perryREVWalkRight;
             case WALKING_RIGHT_SHIELD:
                 this.animationWidth = walkWidth;
                 this.animationHeight = walkHeight;
                 return perryWalkRightShield;
+            case REVERSE_WALKING_RIGHT_SHIELD:
+                this.animationWidth = walkWidth;
+                this.animationHeight = walkHeight;
+                return perryREVWalkRightShield;
             case RUNNING_LEFT:
                 System.out.println("Returning RUNNING_LEFT animation");
                 this.animationWidth = runWidth;

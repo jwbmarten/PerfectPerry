@@ -25,6 +25,7 @@ public class YellowFellow extends PerfectEnemy {
         this.canMove = true;
         this.grounded = false;
         this.isAttacking = false;
+        this.healthPoints = 100;
         this.maxWalkSpeed = 4;
         this.animationManager = new YellowFellowMGMT();
         this.activeAnimation = animationManager.getAnimation(EnemyStates.IDLE_ONE_LEFT);

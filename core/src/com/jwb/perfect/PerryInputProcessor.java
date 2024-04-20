@@ -2,6 +2,7 @@ package com.jwb.perfect;
 
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Input.Keys;
+import com.jwb.gameStates.PlayState;
 import com.jwb.perfectActors.Perry;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class PerryInputProcessor implements InputProcessor {
     //initialize Perry field that will be assigned via constructor
     private Perry perry;
 
+    PlayState playState;
 
 
     // For Debug - when space is press, set to true and then PlayState update will check if true
@@ -37,8 +39,10 @@ public class PerryInputProcessor implements InputProcessor {
      * Called in the PlayState constructor
      * @param perry
      */
-    public PerryInputProcessor(Perry perry){
+    public PerryInputProcessor(Perry perry, PlayState playState){
+
         this.perry = perry;
+        this.playState = playState;
     }
 
 
@@ -84,12 +88,14 @@ public class PerryInputProcessor implements InputProcessor {
 
                 break;
             //case if L is pressed
-            case Keys.L:
+            case Keys.K:
                 perry.handleQuickAttack();
                 break;
             case Keys.O:
                 this.shieldPressed = true;
                 break;
+            case Keys.L:
+                playState.handleLockOn();
 
         }
         return true;

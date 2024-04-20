@@ -13,6 +13,10 @@ public class Perry {
 
     boolean leftMove;
     boolean rightMove;
+
+    boolean leftPressed;
+    boolean rightPressed;
+
     boolean rightRoll;
 
     // determines if Perry can stop his current animation or not
@@ -21,6 +25,10 @@ public class Perry {
     boolean grounded;
 
     boolean isAttacking;
+
+    boolean isLockedOn;
+
+    private PerfectEnemy lockedEnemy;
 
     boolean shieldUp;
 
@@ -147,11 +155,16 @@ public class Perry {
 
         canMove = true;
 
+        isLockedOn = false;
+
         this.rightMove = true;
 
     }
 
     public void update(float dt, boolean leftPressed, boolean rightPressed, boolean spacePressed, boolean shieldPressed){
+
+        this.leftPressed = leftPressed;
+        this.rightPressed = rightPressed;
 
         if (leftPressed && rightPressed){
         System.out.println("Perry Update.   Left Pressed:  " + leftPressed + " Right Pressed:   " + rightPressed);}
@@ -266,6 +279,17 @@ public class Perry {
 
         if (rightMove && canMove){
 
+            if ((isLockedOn) && (lockedEnemy.position.x > position.x)){
+
+                    if (shieldUp){
+                        changeState(State.REVERSE_WALKING_RIGHT_SHIELD);
+                    } else {
+                        changeState(State.REVERSE_WALKING_RIGHT);
+                    }
+
+                return;
+            }
+
             rightMove = false;
             leftMove = true;
 
@@ -358,6 +382,17 @@ public class Perry {
     public void chooseRightMoveState(State currentState) {
 
         if (leftMove && canMove){
+
+            if ((isLockedOn) && (lockedEnemy.position.x < position.x)){
+
+                if (shieldUp){
+                    changeState(State.REVERSE_WALKING_LEFT_SHIELD);
+                } else {
+                    changeState(State.REVERSE_WALKING_LEFT);
+                }
+
+                return;
+            }
 
             leftMove = false;
             rightMove = true;
@@ -725,7 +760,6 @@ public class Perry {
 
         if (currentState == State.JUMP_BACK_LEFT) {
 
-
             newVelocityX = Math.max((2 * maxRunSpeed) * (1f - activeAnimation.animationPercentComplete()), 3f);
 
             float xPosIncrement = newVelocityX * dt;
@@ -777,14 +811,14 @@ public class Perry {
 
         if ((currentState!= State.ROLLING_RIGHT) && (currentState != State.ROLLING_LEFT)) {
 
-            if (this.leftMove) {
+            if (this.leftPressed) {
 
                 changeState(State.ROLLING_LEFT);
                 canMove = false;
 
             }
 
-            if (this.rightMove) {
+            if (this.rightPressed) {
 
                 changeState(State.ROLLING_RIGHT);
                 canMove = false;
@@ -904,7 +938,7 @@ public class Perry {
             newVelocityX = 0;
         }
 
-        if ((currentState == State.WALKING_LEFT) || (currentState == State.WALKING_LEFT_SHIELD)){
+        if ((currentState == State.WALKING_LEFT) || (currentState == State.WALKING_LEFT_SHIELD) || (currentState == State.REVERSE_WALKING_RIGHT) || (currentState == State.REVERSE_WALKING_RIGHT_SHIELD)){
             newVelocityX = Math.max((velocity.x * 1.5f) - 1.5f * dt , -maxWalkSpeed);}
 
         else if (currentState == State.RUNNING_LEFT){
@@ -949,7 +983,7 @@ public class Perry {
             newVelocityX = 0;
         }
 
-        if ((currentState == State.WALKING_RIGHT) || (currentState == State.WALKING_RIGHT_SHIELD)){
+        if ((currentState == State.WALKING_RIGHT) || (currentState == State.WALKING_RIGHT_SHIELD) || (currentState == State.REVERSE_WALKING_LEFT) || (currentState == State.REVERSE_WALKING_LEFT_SHIELD)){
             newVelocityX = Math.min((velocity.x * 1.5f) + 1.5f * dt , maxWalkSpeed);}
 
         else if (currentState == State.RUNNING_RIGHT){
@@ -1160,6 +1194,24 @@ public class Perry {
 //        }
 
         return shieldOffsetLeft;
+    }
+
+    public void lockOn(PerfectEnemy enemy) {
+        this.lockedEnemy = enemy;
+        this.isLockedOn = enemy != null;
+    }
+
+    public void unlock() {
+        this.isLockedOn = false;
+        this.lockedEnemy = null;
+    }
+
+    public boolean isLockedOn() {
+        return isLockedOn;
+    }
+
+    public PerfectEnemy getLockedEnemy() {
+        return lockedEnemy;
     }
 
     public void dispose() { System.out.println("Perry Disposed!");} //texture.dispose();
